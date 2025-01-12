@@ -20,7 +20,7 @@ YouTube Video Mixer is a web application that allows users to search, load, and 
 
 ## File Structure
 ```
-youtube-video-mixer/
+youtube-mixer/
 ├── index.html       # Main HTML file
 ├── styles.css       # Stylesheet for layout and design
 ├── script.js        # JavaScript for functionality
@@ -36,11 +36,11 @@ youtube-video-mixer/
 ### Installation
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/yourusername/youtube-video-mixer.git
+   git clone https://github.com/rafabez/youtube-mixer.git
    ```
 2. **Navigate to the Project Folder:**
    ```bash
-   cd youtube-video-mixer
+   cd youtube-mixer
    ```
 3. **Open `index.html` in your browser** to start using the application.
 
@@ -49,7 +49,7 @@ You can deploy this project using GitHub Pages:
 1. Push your code to GitHub.
 2. Go to the repository settings.
 3. Enable GitHub Pages from the `main` branch.
-4. Your app will be live at `https://yourusername.github.io/youtube-video-mixer/`
+4. Your app will be live at `https://rafabez.github.io/youtube-mixer/`
 
 ## Usage
 1. **Search Videos:** Enter a search term and click **Search**.
@@ -77,5 +77,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 **Developed by Rafael Beznos**
 
-[LinkedIn](https://www.linkedin.com/in/rafaelbeznos) | [Instagram](https://www.instagram.com/oceanicaos.art)
+[LinkedIn](https://www.linkedin.com/in/rafaelbeznos) | [Instagram](https://www.instagram.com/oceanicaos.art) | [Live Demo](https://www.youtubemixer.com.br)
 
