@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- Meta Tags for Character Encoding and Responsive Design -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- Page Title and Favicon -->
+  <title>YouTube Video Mixer</title>
+  <link rel="icon" href="https://youtubemixer.com.br/favicon.ico" type="image/x-icon"/>
+
+  <!-- Open Graph Meta Tags for Social Media Sharing -->
+  <meta property="og:title" content="YouTube Video Mixer" />
+  <meta property="og:description" content="Mix and control YouTube videos with ease."/>
+  <meta property="og:image" content="https://youtubemixer.com.br/bg.png" />
+  <meta property="og:url" content="https://youtubemixer.com.br" />
+  <meta property="og:type" content="website" />
+
+  <!-- Google Font for the Title -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Link to External CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Landmark: Banner/Header -->
+  <header role="banner">
+    <h1>YOUTUBE MIXER</h1>
+  </header>
+
+  <!-- Landmark: Search Section -->
+  <div class="search-container" role="search" aria-label="Search for YouTube Videos">
+    <!-- Search Input Field -->
+    <input
+      type="text"
+      id="searchBox"
+      placeholder="Search YouTube Videos"
+      aria-label="Search YouTube Videos"
+    />
+    <!-- Search Button -->
+    <button onclick="searchVideos()" aria-label="Search Videos">Search</button>
+  </div>
+
+  <!-- Landmark: Main Content Area -->
+  <main role="main">
+    <!-- Video Mixing Area -->
+    <div class="video-container" aria-label="Video Mixer Area">
+      
+      <!-- Fieldset for Video 1 Controls -->
+      <fieldset aria-label="Controls for Video 1">
+        <legend>Video 1</legend>
+        <!-- Input Field for Video 1 Link and Load Button -->
+        <div>
+          <input
+            type="text"
+            id="videoLink1"
+            placeholder="Enter YouTube Link 1"
+            aria-label="YouTube Video Link 1"
+          />
+          <button onclick="loadVideo(1)" aria-label="Load Video 1">Load</button>
+        </div>
+        <!-- YouTube Player Container for Video 1 -->
+        <div id="player1"></div>
+        <!-- Playback Control Buttons for Video 1 -->
+        <div>
+          <button onclick="playVideo(1)" aria-label="Play Video 1">Play</button>
+          <button onclick="pauseVideo(1)" aria-label="Pause Video 1">Pause</button>
+          <button onclick="stopVideo(1)" aria-label="Stop Video 1">Stop</button>
+        </div>
+      </fieldset>
+
+      <!-- Fieldset for Video 2 Controls -->
+      <fieldset aria-label="Controls for Video 2">
+        <legend>Video 2</legend>
+        <!-- Input Field for Video 2 Link and Load Button -->
+        <div>
+          <input
+            type="text"
+            id="videoLink2"
+            placeholder="Enter YouTube Link 2"
+            aria-label="YouTube Video Link 2"
+          />
+          <button onclick="loadVideo(2)" aria-label="Load Video 2">Load</button>
+        </div>
+        <!-- YouTube Player Container for Video 2 -->
+        <div id="player2"></div>
+        <!-- Playback Control Buttons for Video 2 -->
+        <div>
+          <button onclick="playVideo(2)" aria-label="Play Video 2">Play</button>
+          <button onclick="pauseVideo(2)" aria-label="Pause Video 2">Pause</button>
+          <button onclick="stopVideo(2)" aria-label="Stop Video 2">Stop</button>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Audio Fader Controls -->
+    <div class="controls" aria-label="Audio Mixer Controls">
+      <!-- Fader Label -->
+      <label id="faderLabel" for="fader">Audio Mixer Fader</label>
+      <!-- Fader Description -->
+      <p id="faderDescription">
+        Use this fader to control the relative volume of Video 1 and Video 2.  
+        Sliding to the left emphasizes Video 1, while sliding to the right emphasizes Video 2.
+      </p>
+      <!-- Fader (Range Input) -->
+      <input
+        type="range"
+        id="fader"
+        min="0"
+        max="100"
+        value="50"
+        tabindex="0"
+        aria-describedby="faderDescription"
+      />
+    </div>
+  </main>
+
+  <!-- Link to External JavaScript -->
+  <script src="script.js"></script>
+
+  <!-- Loads the YouTube IFrame Player API Asynchronously -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
