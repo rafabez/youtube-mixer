@@ -1,7 +1,7 @@
 # YouTube Video Mixer
 [Live Demo](https://www.youtubemixer.com.br)
 ## Project Overview
-YouTube Video Mixer is a web application that allows users to search, load, and mix two YouTube videos. Users can control video playback and adjust the audio balance between the two videos with an interactive slider.
+YouTube Video Mixer is a web application that allows users to search, load, and mix two YouTube videos. Users can control video playback and adjust the audio mix between the two videos with an interactive slider.
 
 ## Features
 - **Search YouTube Videos:** Search for videos directly from the app.
