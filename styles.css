@@ -62,25 +62,28 @@ body {
   .video-container {
     display: flex; /* Uses Flexbox for layout */
     justify-content: center; /* Centers items horizontally */
-    align-items: flex-start; /* Aligns items to the top vertically */
+    align-items: stretch; /* Aligns items to stretch vertically */
     gap: 20px; /* Adds space between items */
     padding: 20px; /* Adds padding inside the container */
     flex-wrap: wrap; /* Allows items to wrap on smaller screens */
     width: 100%; /* Ensures the container takes full width */
     box-sizing: border-box; /* Includes padding and border in the width calculation */
+    min-height: 400px; /* Minimum height to accommodate videos */
   }
   
   /* Fieldset Styles for Video Controls */
   fieldset {
     border: 2px solid #fff; /* Sets border color and thickness */
     border-radius: 8px; /* Rounds the corners */
-    margin: 0 10px; /* Adds horizontal margin */
+    margin: 0 10px 20px 10px; /* Adds horizontal margin and bottom margin */
     padding: 20px; /* Adds padding inside the fieldset */
     text-align: center; /* Centers the text */
-    width: 350px; /* Sets a fixed width */
-    max-width: 90%; /* Ensures responsiveness */
+    width: calc(50% - 60px); /* Sets width to approximately half the container minus margins/padding */
+    min-width: 300px; /* Minimum width to maintain usability */
     box-sizing: border-box; /* Includes padding and border in the width calculation */
-    flex: 1 1 350px; /* Allows fieldsets to grow and shrink */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   legend {
     font-weight: bold; /* Makes the legend text bold */
@@ -95,6 +98,19 @@ body {
     width: 500px; /* Sets a fixed width */
     max-width: 90%; /* Ensures responsiveness */
     box-sizing: border-box; /* Includes padding and border in the width calculation */
+  }
+  
+  /* YouTube Player Containers */
+  #player1, #player2 {
+    width: 100%;
+    aspect-ratio: 16/9; /* Maintains 16:9 aspect ratio */
+    margin: 15px 0;
+  }
+
+  /* YouTube iframes */
+  #player1 iframe, #player2 iframe {
+    width: 100%;
+    height: 100%;
   }
   
   /* Controls Container Styles */
@@ -152,29 +168,20 @@ body {
   @media only screen and (max-width: 1200px) {
     /* Ensures that the video players scale down proportionally */
     fieldset {
-      width: 300px;
-      flex: 1 1 300px;
-    }
-    fieldset input[type="text"] {
-      width: 400px;
-    }
-    #player1, #player2 {
-      width: 100%;
-      height: auto;
+      width: calc(50% - 60px);
+      min-width: 300px;
     }
   }
-  
+
   @media only screen and (max-width: 992px) {
     /* Further scaling for medium-sized devices */
     .search-container input {
-      width: 350px;
+      width: 100%;
     }
     fieldset {
-      width: 280px;
-      flex: 1 1 280px;
-    }
-    fieldset input[type="text"] {
-      width: 350px;
+      width: calc(50% - 40px);
+      min-width: 280px;
+      padding: 15px;
     }
   }
   
@@ -183,52 +190,65 @@ body {
     .search-container {
       flex-direction: column;
       align-items: center;
+      width: 100%;
     }
     .search-container input {
-      width: 80%;
+      width: 100%;
       margin-right: 0;
       margin-bottom: 10px;
     }
     .search-container button {
-      width: 50%;
+      width: 100%;
     }
-  
-    /* Adjusts the Video Container to stack vertically */
+
+    /* Adjusts the Video Container for vertical stacking */
     .video-container {
       flex-direction: column;
       align-items: center;
+      gap: 10px;
+      padding: 10px;
     }
-  
-    /* Adjusts Fieldsets to occupy more width */
+
+    /* Adjusts Fieldsets for vertical stacking */
     fieldset {
-      width: 90%;
-      max-width: 90%;
+      width: 100%;
+      max-width: 100%;
+      min-width: unset;
+      margin: 0 0 20px 0;
+      padding: 15px;
     }
-  
-    /* Adjusts Inputs within Fieldsets */
-    fieldset input[type="text"] {
-      width: 90%;
+
+    /* Adjusts the YouTube player containers */
+    #player1, #player2 {
+      width: 100%;
+      aspect-ratio: 16/9;
     }
-  
-    /* Adjusts the Fader to take up more space */
+
+    /* Adjusts the Fader to take up appropriate space */
     #fader {
       width: 90%;
     }
-  
+
     /* Adjusts Buttons within Fieldsets for better spacing */
     fieldset div {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 5px;
+      width: 100%;
     }
+    
     fieldset button {
-      width: 60%;
-      margin: 5px 0;
+      flex: 1 1 auto;
+      min-width: 80px;
+      margin: 5px 2px;
     }
-  
+
     /* Adjusts the Controls Container */
     .controls {
       padding: 0 10px;
+      width: 100%;
+      margin-top: 10px;
     }
   }
   
@@ -236,21 +256,22 @@ body {
     /* Adjusts the Title for smaller sizes */
     header h1 {
       font-size: 2em;
+      width: 100%;
     }
   
     /* Adjusts the Fader Description */
     #faderDescription {
       font-size: 12px;
+      width: 100%;
     }
   
     /* Adjusts Buttons to take full width */
     button {
-      width: 80%;
+      width: 100%;
     }
   
     /* Further adjust input widths for very small screens */
     .search-container input, fieldset input[type="text"] {
-      width: 95%;
+      width: 100%;
     }
   }
-  
