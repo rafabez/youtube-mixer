@@ -99,13 +99,6 @@
 
     <!-- Audio Fader Controls -->
     <div class="controls" aria-label="Audio Mixer Controls">
-      <!-- Fader Label -->
-      <label id="faderLabel" for="fader">Audio Mixer Fader</label>
-      <!-- Fader Description -->
-      <p id="faderDescription">
-        Use this fader to control the relative volume of Video 1 and Video 2.  
-        Sliding to the left emphasizes Video 1, while sliding to the right emphasizes Video 2.
-      </p>
       <!-- Fader (Range Input) -->
       <input
         type="range"
@@ -116,6 +109,13 @@
         tabindex="0"
         aria-describedby="faderDescription"
       />
+      <!-- Fader Label -->
+      <label id="faderLabel" for="fader">Audio Mixer Fader</label>
+      <!-- Fader Description -->
+      <p id="faderDescription">
+        Use this fader to control the relative volume of Video 1 and Video 2.
+        Sliding to the left emphasizes Video 1, while sliding to the right emphasizes Video 2.
+      </p>
     </div>
   </main>
 
