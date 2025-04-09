@@ -1,7 +1,17 @@
 // Variables to store YouTube player instances
 var player1, player2;
 
-// Removed logScale function as it's replaced by constant power panning
+/**
+ * Helper Function: Converts a linear fader value (0->100) to a smooth logarithmic scale.
+ * This provides a more natural volume adjustment.
+ * @param {number} value - The linear fader value.
+ * @returns {number} - The adjusted volume level on a logarithmic scale.
+ */
+function logScale(value) {
+  var fraction = value / 100;
+  fraction = fraction * fraction; // Applies a quadratic scale for a smooth logarithmic effect
+  return Math.round(fraction * 100);
+}
 
 /**
  * YouTube Players Initialization Function.
@@ -108,25 +118,14 @@ function stopVideo(videoNumber) {
 
 /**
  * Event: Adjusts the Volume of Both Videos Based on the Fader Position.
- * Applies a constant power panning algorithm for smooth crossfading.
+ * Applies a logarithmic scale for a more natural volume adjustment.
  */
 document.getElementById('fader').addEventListener('input', function() {
-  var faderValue = parseInt(this.value, 10); // Fader value from 0 to 100
-
-  // Map the fader value (0-100) to an angle (0 to PI/2 radians)
-  var angle = (faderValue / 100) * (Math.PI / 2);
-
-  // Calculate volumes using constant power panning law
-  var volume1 = Math.round(Math.cos(angle) * 100); // Volume for Video 1 (decreases as fader moves right)
-  var volume2 = Math.round(Math.sin(angle) * 100); // Volume for Video 2 (increases as fader moves right)
-
-  // Ensure players are ready before setting volume
-  if (player1 && typeof player1.setVolume === 'function') {
-      player1.setVolume(volume1);                  // Sets volume for Player 1
-  }
-  if (player2 && typeof player2.setVolume === 'function') {
-      player2.setVolume(volume2);                  // Sets volume for Player 2
-  }
+  var linearValue = parseInt(this.value, 10); // Gets the current fader value
+  var volume1 = logScale(100 - linearValue);  // Calculates volume for Video 1
+  var volume2 = logScale(linearValue);        // Calculates volume for Video 2
+  player1.setVolume(volume1);                  // Sets volume for Player 1
+  player2.setVolume(volume2);                  // Sets volume for Player 2
 });
 
 /**
@@ -185,23 +184,3 @@ function addKeyboardShortcuts() {
 window.onload = function() {
   addKeyboardShortcuts();
 };
-
-/**
- * Opens the information modal.
- */
-function openInfoModal() {
-  const modal = document.getElementById('infoModal');
-  if (modal) {
-    modal.classList.remove('hidden');
-  }
-}
-
-/**
- * Closes the information modal.
- */
-function closeInfoModal() {
-  const modal = document.getElementById('infoModal');
-  if (modal) {
-    modal.classList.add('hidden');
-  }
-}

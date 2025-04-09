@@ -29,14 +29,16 @@ body {
     box-sizing: border-box; /* Include padding in width calculation */
     z-index: 1000; /* Ensures header stays on top */
     display: flex; /* Use flexbox for layout */
-    justify-content: space-between; /* Space out title and info */
+    /* justify-content: space-between; */ /* Removed, will let flex items space naturally */
     align-items: center; /* Vertically center items */
+    gap: 15px; /* Add gap between header items */
   }
   header h1 {
     font-family: 'Montserrat', Arial, sans-serif; /* Uses Montserrat font for the header */
     font-size: 1.2em; /* Reduces the font size */
     margin: 0; /* Removes default margin */
     color: #eee; /* Slightly lighter color for the title */
+    flex-shrink: 0; /* Prevent title from shrinking */
   }
   
   /* Info Section Styles */
@@ -60,8 +62,9 @@ body {
     text-align: center;
     cursor: pointer;
     padding: 0; /* Remove default button padding */
-    margin-left: 15px; /* Space from title */
+    /* margin-left: 15px; */ /* Removed, using header gap */
     transition: background-color 0.3s ease;
+    flex-shrink: 0; /* Prevent icon from shrinking */
   }
   .info-icon:hover {
     background-color: #777;
@@ -155,29 +158,34 @@ body {
     font-style: italic;
   }
   
-  /* Search Container Styles */
-  .search-container {
+  /* Search Container Styles (Now specific to header) */
+  .header-search {
     display: flex; /* Uses Flexbox for layout */
     justify-content: center; /* Centers items horizontally */
-    margin-bottom: 15px; /* Adds bottom margin */
-    margin-top: 20px; /* Reduced top margin */
-    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    flex-grow: 1; /* Allow search to take up space */
+    /* margin-bottom: 15px; */ /* Removed */
+    /* margin-top: 20px; */ /* Removed */
     gap: 10px; /* Add gap between input and button */
+    min-width: 200px; /* Prevent it from becoming too small */
   }
-  .search-container input {
-    /* margin-right: 10px; Removed, using gap now */
-    padding: 10px 15px; /* Adjusted padding */
-    width: 400px; /* Sets a fixed width */
-    max-width: calc(100% - 120px); /* Adjust max-width considering button */
+  .header-search input {
+    padding: 8px 12px; /* Slightly smaller padding for header */
+    width: 100%; /* Take available width within flex container */
+    max-width: 400px; /* Limit max width */
     box-sizing: border-box; /* Includes padding and border in the width calculation */
     border: 1px solid #555;
     border-radius: 4px;
     background-color: #222;
     color: white;
   }
+
+  .header-search button {
+      padding: 8px 15px; /* Slightly smaller padding for header */
+      flex-shrink: 0; /* Prevent button shrinking */
+  }
   
-  /* Button Styles */
-  button {
+  /* General Button Styles (excluding header search button) */
+  button:not(.info-icon):not(.modal-close):not(.header-search button) {
     background-color: rgb(200, 20, 0); /* Slightly adjusted background color */
     border: none; /* Removes the border */
     color: white; /* Sets the text color */
@@ -288,53 +296,77 @@ body {
   
   /* Controls Container Styles */
   .controls {
-    margin-top: 30px; /* Adds top margin */
+    margin-top: 40px; /* Increased top margin */
+    margin-bottom: 40px; /* Added bottom margin */
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 20px;
-    width: 100%; /* Ensures the container takes full width */
+    padding: 25px 20px; /* Increased padding */
+    width: 90%; /* Limit width slightly */
+    max-width: 800px; /* Max width for the controls area */
     box-sizing: border-box; /* Includes padding and border in the width calculation */
+    background-color: rgba(30, 30, 30, 0.8); /* Darker semi-transparent background */
+    border-radius: 10px; /* Rounded corners */
+    border: 1px solid #444; /* Subtle border */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Add shadow */
+    margin-left: auto; /* Center the container */
+    margin-right: auto; /* Center the container */
   }
   
   /* Fader (Volume Control) Styles */
   #faderLabel {
     display: block; /* Makes the label a block element */
-    margin-bottom: 8px; /* Adds bottom margin */
-    font-size: 18px; /* Sets the font size */
+    margin-bottom: 15px; /* Increased bottom margin */
+    font-size: 1.3em; /* Slightly larger font size */
     font-weight: bold; /* Makes the text bold */
+    color: #eee;
   }
   #faderDescription {
-    margin-bottom: 10px; /* Adds bottom margin */
-    font-size: 14px; /* Sets the font size */
-    color: #ccc; /* Sets the text color */
-    max-width: 80%; /* Sets the maximum width */
-    margin: 0 auto 15px auto; /* Centers the text with top and bottom margins */
-    line-height: 1.4; /* Sets the line height for better readability */
+    margin-bottom: 20px; /* Increased bottom margin */
+    font-size: 0.9em; /* Slightly smaller font size */
+    color: #bbb; /* Lighter gray color */
+    max-width: 90%; /* Allow slightly wider description */
+    margin: 0 auto 25px auto; /* Centers the text with increased bottom margin */
+    line-height: 1.5; /* Slightly increased line height */
   }
   #fader {
     -webkit-appearance: none; /* Removes default style in WebKit browsers */
     appearance: none; /* Removes default style */
-    width: 80%; /* Sets the width */
-    height: 40px; /* Sets the height */
-    background: linear-gradient(to right, #ff0000, #0000ff); /* Adds a gradient background */
-    border-radius: 25px; /* Rounds the corners */
+    width: 90%; /* Increase width relative to container */
+    height: 12px; /* Make the track thinner */
+    background: linear-gradient(to right, #e63946, #457b9d); /* New gradient: Red to Blue */
+    border-radius: 6px; /* Rounded track */
     outline: none; /* Removes the outline */
-    opacity: 0.9; /* Sets the opacity */
+    opacity: 0.85; /* Slightly adjust opacity */
     transition: opacity 0.2s; /* Adds transition for opacity */
-    box-shadow: 0px 0px 10px #ffffff; /* Adds a white glow */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); /* Inner shadow for depth */
     margin-bottom: 20px; /* Adds bottom margin */
+    cursor: pointer;
   }
-  /* Thumb (Pointer) Styles for the Fader in WebKit Browsers */
+  #fader:hover {
+      opacity: 1;
+  }
+  /* Thumb (Pointer) Styles for the Fader */
   #fader::-webkit-slider-thumb {
     -webkit-appearance: none; /* Removes the default style */
     appearance: none; /* Removes the default style */
-    width: 35px; /* Sets the thumb width */
-    height: 35px; /* Sets the thumb height */
-    background: #fff; /* Sets the thumb background color */
+    width: 28px; /* Thumb width */
+    height: 28px; /* Thumb height */
+    background: #f1faee; /* Light thumb color */
     border-radius: 50%; /* Makes the thumb circular */
     cursor: pointer; /* Changes the cursor to pointer on hover */
-    box-shadow: 0px 0px 10px #000; /* Adds a black shadow to the thumb */
+    border: 2px solid #1d3557; /* Dark blue border */
+    box-shadow: 0px 0px 8px rgba(241, 250, 238, 0.5); /* Subtle glow */
+    margin-top: -8px; /* Adjust vertical position to center on track */
+  }
+  #fader::-moz-range-thumb { /* Firefox */
+    width: 28px; /* Thumb width */
+    height: 28px; /* Thumb height */
+    background: #f1faee; /* Light thumb color */
+    border-radius: 50%; /* Makes the thumb circular */
+    cursor: pointer; /* Changes the cursor to pointer on hover */
+    border: 2px solid #1d3557; /* Dark blue border */
+    box-shadow: 0px 0px 8px rgba(241, 250, 238, 0.5); /* Subtle glow */
   }
   
   /* Responsiveness for Mobile Devices */
