@@ -4,10 +4,11 @@ body {
     color: white; /* Sets the text color to white */
     font-family: Arial, sans-serif; /* Default font */
     text-align: center; /* Centers text horizontally */
-    background-image: url('https://youtubemixer.com.br/bg.png'); /* Background image */
-    background-size: cover; /* Ensures the background image covers the entire viewport */
-    background-position: center; /* Centers the background image */
-    background-repeat: no-repeat; /* Prevents the background image from repeating */
+    /* background-image: url('https://youtubemixer.com.br/bg.png'); */ /* Removed background image */
+    background-image: radial-gradient(circle, #444 0%, #111 100%); /* Added dark radial gradient */
+    /* background-size: cover; */ /* Removed */
+    /* background-position: center; */ /* Removed */
+    /* background-repeat: no-repeat; */ /* Removed */
     margin: 0; /* Removes default margin */
     padding: 0; /* Removes default padding */
     min-height: 100vh; /* Sets the minimum height to 100% of the viewport height */
