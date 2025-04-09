@@ -47,21 +47,48 @@
   <div id="infoModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
       <button class="modal-close" onclick="closeInfoModal()" aria-label="Close Instructions">&times;</button>
-      <h2 id="modalTitle">How to Use YouTube Mixer</h2>
-      <ol>
-        <li><strong>Search (Optional):</strong> Use the search bar to find YouTube videos. Click 'Search' to open results in a new tab.</li>
-        <li><strong>Load Videos:</strong> Paste the full YouTube video URL (e.g., <code>https://www.youtube.com/watch?v=...</code>) into the 'Enter YouTube Link' fields for Video 1 and Video 2.</li>
-        <li><strong>Click Load:</strong> Press the 'Load' button next to each input field to load the video into its player.</li>
-        <li><strong>Playback Controls:</strong> Use the 'Play', 'Pause', and 'Stop' buttons beneath each video player to control playback individually.</li>
-        <li><strong>Mix Audio:</strong> Use the 'Audio Mixer Fader' slider at the bottom.
-          <ul>
-            <li>Slide LEFT to increase the volume of Video 1 and decrease Video 2.</li>
-            <li>Slide RIGHT to increase the volume of Video 2 and decrease Video 1.</li>
-            <li>The MIDDLE position balances the audio equally.</li>
-          </ul>
-        </li>
-      </ol>
-      <p>Enjoy mixing your videos!</p>
+      <h2 id="modalTitle">YouTube Mixer Instructions</h2>
+      
+      <div class="instructions-section">
+        <h3>Loading Videos</h3>
+        <ol>
+          <li><strong>Search (Optional):</strong> Use the search bar in the header to find YouTube videos. Click 'Search' to open results in a new tab.</li>
+          <li><strong>Paste Link:</strong> Paste the full YouTube video URL (e.g., <code>https://www.youtube.com/watch?v=...</code>) into the 'Enter YouTube Link' field for Video 1 or Video 2.</li>
+          <li><strong>Load:</strong> Click the 'Load' button next to the input field.</li>
+        </ol>
+      </div>
+
+      <div class="instructions-section">
+        <h3>Playback Controls</h3>
+        <p>Use the buttons below each video player or the keyboard shortcuts:</p>
+        <div class="shortcuts-grid">
+          <div><strong>Video 1:</strong></div>
+          <div><code>Q</code> = Play</div>
+          <div><code>W</code> = Pause</div>
+          <div><code>E</code> = Stop</div>
+          <div><strong>Video 2:</strong></div>
+          <div><code>A</code> = Play</div>
+          <div><code>S</code> = Pause</div>
+          <div><code>D</code> = Stop</div>
+        </div>
+      </div>
+
+      <div class="instructions-section">
+        <h3>Audio Fader</h3>
+        <p>Use the slider at the bottom to mix audio between the videos:</p>
+        <ul>
+            <li>Slide LEFT: Increases Video 1 volume, decreases Video 2 volume.</li>
+            <li>Slide RIGHT: Increases Video 2 volume, decreases Video 1 volume.</li>
+            <li>Middle: Balanced volume.</li>
+        </ul>
+        <p><strong>Shortcuts:</strong></p>
+        <ul>
+            <li><code>&larr;</code> / <code>&rarr;</code> (Arrow Keys): Fine adjustment.</li>
+            <li><code>Shift</code> + <code>Mouse Scroll</code>: Adjust fader.</li>
+        </ul>
+      </div>
+
+      <p class="enjoy-message">Enjoy mixing your videos!</p>
     </div>
   </div>
 

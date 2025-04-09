@@ -157,6 +157,57 @@ body {
     margin-top: 20px;
     font-style: italic;
   }
+  .enjoy-message { /* Specific style for the final message */
+      margin-top: 30px;
+      font-weight: bold;
+      color: #a1c181; /* A greenish color */
+  }
+
+  .instructions-section {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #444; /* Separator line */
+  }
+  .instructions-section:last-of-type {
+      border-bottom: none; /* No line after the last section */
+      margin-bottom: 0;
+      padding-bottom: 0;
+  }
+  .instructions-section h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #61a5c2; /* A bluish color for section titles */
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
+  }
+  .instructions-section p {
+      text-align: left;
+      margin-bottom: 10px;
+      font-style: normal; /* Override italic default for p in modal */
+  }
+  .instructions-section ul {
+      list-style: disc;
+      padding-left: 20px;
+  }
+
+  .shortcuts-grid {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr; /* Columns for Video Label, Key, Key, Key */
+      gap: 5px 15px; /* Row gap, Column gap */
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+  }
+  .shortcuts-grid div {
+      text-align: left;
+  }
+  .shortcuts-grid code {
+      display: inline-block; /* Allow padding/margin */
+      min-width: 20px; /* Ensure minimum width for single chars */
+      text-align: center;
+  }
   
   /* Search Container Styles (Now specific to header) */
   .header-search {

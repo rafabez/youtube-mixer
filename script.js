@@ -146,44 +146,98 @@ function extractVideoID(url) {
 }
 
 /**
- * Function to Add Keyboard Functionalities.
- * 1. Pressing Enter in the search field triggers the search.
- * 2. Pressing the right and left arrow keys adjusts the fader.
+ * Function to Add Keyboard and Scroll Functionalities.
+ * - Enter in search field: Trigger search.
+ * - Arrow Keys: Adjust fader.
+ * - Shift + Scroll: Adjust fader.
+ * - Q/W/E: Control Video 1 (Play/Pause/Stop).
+ * - A/S/D: Control Video 2 (Play/Pause/Stop).
  */
 function addKeyboardShortcuts() {
-  // Event to detect key presses
+  // Event listener for keydown events
   document.addEventListener('keydown', function(event) {
-    // 1. Functionality: Pressing Enter in the search field triggers the search
-    var searchBox = document.getElementById('searchBox');
-    if (document.activeElement === searchBox && event.key === 'Enter') {
-      event.preventDefault(); // Prevent the default form submission action
-      searchVideos(); // Calls the search function
+    const activeElement = document.activeElement;
+    const isTyping = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
+
+    // --- Search Shortcut ---
+    if (activeElement.id === 'searchBox' && event.key === 'Enter') {
+      event.preventDefault();
+      searchVideos();
+      return; // Don't process other shortcuts if searching
     }
 
-    // 2. Functionality: Pressing the right and left arrow keys adjusts the fader
+    // Ignore playback/fader shortcuts if user is typing in an input field
+    if (isTyping) {
+      return;
+    }
+
+    // --- Fader Arrow Key Shortcuts ---
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-      event.preventDefault(); // Prevent page scrolling when using arrow keys
-      var fader = document.getElementById('fader');
-      var step = 5; // Defines the fader adjustment step
+      event.preventDefault();
+      const fader = document.getElementById('fader');
+      const step = 5;
+      let currentValue = parseInt(fader.value, 10);
 
       if (event.key === 'ArrowLeft') {
-        // Decreases the fader value
-        fader.value = Math.max(parseInt(fader.value, 10) - step, 0);
-      } else if (event.key === 'ArrowRight') {
-        // Increases the fader value
-        fader.value = Math.min(parseInt(fader.value, 10) + step, 100);
+        fader.value = Math.max(currentValue - step, 0);
+      } else { // ArrowRight
+        fader.value = Math.min(currentValue + step, 100);
       }
-
-      // Triggers the 'input' event to update the volumes
-      var eventInput = new Event('input');
-      fader.dispatchEvent(eventInput);
+      // Trigger the 'input' event manually
+      fader.dispatchEvent(new Event('input', { bubbles: true }));
+      return; // Processed fader shortcut
     }
+
+    // --- Playback Shortcuts ---
+    switch (event.key.toUpperCase()) {
+      // Video 1 Controls
+      case 'Q':
+        playVideo(1);
+        break;
+      case 'W':
+        pauseVideo(1);
+        break;
+      case 'E':
+        stopVideo(1);
+        break;
+      // Video 2 Controls
+      case 'A':
+        playVideo(2);
+        break;
+      case 'S':
+        pauseVideo(2);
+        break;
+      case 'D':
+        stopVideo(2);
+        break;
+      default:
+        return; // Not a playback shortcut key
+    }
+    event.preventDefault(); // Prevent default action for playback keys
   });
+
+  // --- Fader Scroll Shortcut ---
+  document.addEventListener('wheel', function(event) {
+    // Check if Shift key is pressed
+    if (event.shiftKey) {
+      event.preventDefault(); // Prevent page scrolling
+
+      const fader = document.getElementById('fader');
+      const scrollStep = event.deltaY > 0 ? -5 : 5; // Adjust step based on scroll direction
+      let currentValue = parseInt(fader.value, 10);
+      
+      fader.value = Math.max(0, Math.min(100, currentValue + scrollStep));
+
+      // Trigger the 'input' event manually
+      fader.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }, { passive: false }); // Need passive: false to allow preventDefault
 }
 
-// Calls the function to add keyboard shortcuts after the page loads
+// Calls the function to add shortcuts after the page loads
 window.onload = function() {
   addKeyboardShortcuts();
+  // Potentially add other onload tasks here if needed
 };
 
 /**
