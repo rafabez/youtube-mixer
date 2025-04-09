@@ -184,3 +184,23 @@ function addKeyboardShortcuts() {
 window.onload = function() {
   addKeyboardShortcuts();
 };
+
+/**
+ * Opens the information modal.
+ */
+function openInfoModal() {
+  const modal = document.getElementById('infoModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+  }
+}
+
+/**
+ * Closes the information modal.
+ */
+function closeInfoModal() {
+  const modal = document.getElementById('infoModal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}

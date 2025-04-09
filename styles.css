@@ -23,11 +23,13 @@ body {
     top: 0;
     left: 0;
     width: 100%; /* Makes header span full width */
-    background-color: rgba(10, 10, 10, 0.9); /* Slightly transparent dark background */
+    background-color: #333; /* Solid dark gray background */
     padding: 10px 20px; /* Adds padding inside the header */
     box-sizing: border-box; /* Include padding in width calculation */
     z-index: 1000; /* Ensures header stays on top */
-    text-align: left; /* Aligns text to the left */
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-between; /* Space out title and info */
+    align-items: center; /* Vertically center items */
   }
   header h1 {
     font-family: 'Montserrat', Arial, sans-serif; /* Uses Montserrat font for the header */
@@ -36,36 +38,162 @@ body {
     color: #eee; /* Slightly lighter color for the title */
   }
   
+  /* Info Section Styles */
+  .header-info {
+    font-size: 0.8em;
+    color: #ccc;
+    text-align: right;
+  }
+
+  /* Info Icon Button Styles */
+  .info-icon {
+    background-color: #555;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 28px; /* Center the '?' vertically */
+    text-align: center;
+    cursor: pointer;
+    padding: 0; /* Remove default button padding */
+    margin-left: 15px; /* Space from title */
+    transition: background-color 0.3s ease;
+  }
+  .info-icon:hover {
+    background-color: #777;
+  }
+  
+  /* Modal Styles */
+  .modal {
+    position: fixed; /* Stay in place */
+    z-index: 2000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Vertical center */
+    justify-content: center; /* Horizontal center */
+  }
+  
+  .modal.hidden {
+    display: none; /* Hide by default */
+  }
+  
+  .modal-content {
+    background-color: #282828; /* Dark background for modal */
+    color: #eee; /* Light text */
+    margin: auto; /* Auto margins for centering */
+    padding: 30px;
+    border: 1px solid #888;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px; /* Max width */
+    position: relative; /* For positioning the close button */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    text-align: left; /* Align text left inside modal */
+  }
+
+  .modal-close {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+  }
+  
+  .modal-close:hover,
+  .modal-close:focus {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* Modal Content Styling */
+  .modal-content h2 {
+    margin-top: 0;
+    color: #ff4500; /* Orange-red title */
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .modal-content ol {
+    padding-left: 20px; /* Indent list */
+    margin-bottom: 15px;
+  }
+  .modal-content li {
+    margin-bottom: 10px; /* Space between list items */
+    line-height: 1.5;
+  }
+  .modal-content li ul {
+    margin-top: 5px;
+    padding-left: 15px;
+  }
+  .modal-content li ul li {
+    margin-bottom: 5px;
+    font-size: 0.95em;
+  }
+  .modal-content code {
+    background-color: #444;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-family: monospace;
+  }
+  .modal-content p {
+    text-align: center;
+    margin-top: 20px;
+    font-style: italic;
+  }
+  
   /* Search Container Styles */
   .search-container {
     display: flex; /* Uses Flexbox for layout */
     justify-content: center; /* Centers items horizontally */
     margin-bottom: 15px; /* Adds bottom margin */
-    margin-top: 40px; /* Adds top margin */
+    margin-top: 20px; /* Reduced top margin */
     flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    gap: 10px; /* Add gap between input and button */
   }
   .search-container input {
-    margin-right: 10px; /* Adds right margin between input and button */
-    padding: 10px; /* Adds padding inside the input */
+    /* margin-right: 10px; Removed, using gap now */
+    padding: 10px 15px; /* Adjusted padding */
     width: 400px; /* Sets a fixed width */
-    max-width: 90%; /* Ensures responsiveness */
+    max-width: calc(100% - 120px); /* Adjust max-width considering button */
     box-sizing: border-box; /* Includes padding and border in the width calculation */
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #222;
+    color: white;
   }
   
   /* Button Styles */
   button {
-    background-color: rgb(220, 29, 0); /* Sets the background color */
+    background-color: rgb(200, 20, 0); /* Slightly adjusted background color */
     border: none; /* Removes the border */
     color: white; /* Sets the text color */
-    padding: 12px 24px; /* Adds padding */
+    padding: 10px 20px; /* Adjusted padding */
     font-size: 16px; /* Sets the font size */
     cursor: pointer; /* Changes the cursor to pointer on hover */
-    transition: background-color 0.3s ease; /* Adds transition for background color */
-    margin-top: 10px; /* Adds top margin for spacing on smaller screens */
+    transition: background-color 0.3s ease, transform 0.1s ease; /* Adds transition for background color and transform */
+    border-radius: 4px; /* Add rounded corners */
+    /* margin-top: 10px; Removed, handled by flex gap or specific margins */
   }
   
   button:hover {
-    background-color: rgb(255, 69, 0); /* Changes background color on hover */
+    background-color: rgb(230, 50, 0); /* Slightly adjusted hover color */
+  }
+
+  button:active {
+      transform: scale(0.98); /* Add subtle press effect */
   }
   
   /* Video Container Styles */
@@ -75,25 +203,28 @@ body {
     align-items: stretch; /* Aligns items to stretch vertically */
     gap: 20px; /* Adds space between items */
     padding: 20px; /* Adds padding inside the container */
-    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    /* flex-wrap: wrap; */ /* Removed to force side-by-side */
     width: 100%; /* Ensures the container takes full width */
     box-sizing: border-box; /* Includes padding and border in the width calculation */
     min-height: 400px; /* Minimum height to accommodate videos */
+    overflow-x: auto; /* Add horizontal scroll if content overflows on small screens */
   }
   
   /* Fieldset Styles for Video Controls */
   fieldset {
-    border: 2px solid #fff; /* Sets border color and thickness */
+    border: 1px solid #555; /* Thinner, darker border */
     border-radius: 8px; /* Rounds the corners */
-    margin: 0 10px 20px 10px; /* Adds horizontal margin and bottom margin */
+    margin: 0; /* Remove default margins, rely on gap */
     padding: 20px; /* Adds padding inside the fieldset */
-    text-align: center; /* Centers the text */
-    width: calc(50% - 60px); /* Sets width to approximately half the container minus margins/padding */
-    min-width: 300px; /* Minimum width to maintain usability */
+    background-color: rgba(40, 40, 40, 0.7); /* Semi-transparent dark background */
+    /* width: calc(50% - 10px); */ /* Removed - Using flex property instead */
+    flex: 1; /* Allow fieldsets to grow and shrink equally */
+    /* min-width: 300px; */ /* Removed to prevent wrapping */
     box-sizing: border-box; /* Includes padding and border in the width calculation */
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 15px; /* Add gap between elements inside fieldset */
   }
   legend {
     font-weight: bold; /* Makes the legend text bold */
@@ -102,19 +233,50 @@ body {
   }
   
   /* Input Fields Styles within Fieldsets */
+  fieldset .video-input-group { /* Group input and button */
+      display: flex;
+      width: 100%;
+      max-width: 500px; /* Limit width of input group */
+      gap: 10px;
+  }
+
   fieldset input[type="text"] {
-    margin: 10px 0; /* Adds vertical margin */
-    padding: 10px; /* Adds padding inside the input */
-    width: 500px; /* Sets a fixed width */
-    max-width: 90%; /* Ensures responsiveness */
+    /* margin: 10px 0; Removed, using gap */
+    padding: 10px 15px; /* Adjusted padding */
+    flex-grow: 1; /* Allow input to take available space */
+    min-width: 150px; /* Minimum width */
     box-sizing: border-box; /* Includes padding and border in the width calculation */
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #222;
+    color: white;
+  }
+
+  fieldset .video-input-group button {
+      flex-shrink: 0; /* Prevent button from shrinking */
+      margin-top: 0; /* Override general button margin */
+  }
+
+  /* Playback Controls within Fieldsets */
+  fieldset .playback-controls {
+      display: flex;
+      gap: 10px; /* Space between buttons */
+      flex-wrap: wrap; /* Allow wrapping */
+      justify-content: center;
+  }
+
+  fieldset .playback-controls button {
+      margin-top: 0; /* Override general button margin */
   }
   
   /* YouTube Player Containers */
   #player1, #player2 {
     width: 100%;
+    max-width: 640px; /* Optional: Limit max video width */
     aspect-ratio: 16/9; /* Maintains 16:9 aspect ratio */
-    margin: 15px 0;
+    /* margin: 15px 0; Removed, using gap */
+    background-color: #111; /* Placeholder background */
+    border-radius: 4px;
   }
 
   /* YouTube iframes */
@@ -178,8 +340,8 @@ body {
   @media only screen and (max-width: 1200px) {
     /* Ensures that the video players scale down proportionally */
     fieldset {
-      width: calc(50% - 60px);
-      min-width: 300px;
+      /* width: calc(50% - 60px); */ /* Removed - Rely on base width */
+      /* min-width: 300px; */ /* Removed */
     }
   }
 
@@ -189,8 +351,8 @@ body {
       width: 100%;
     }
     fieldset {
-      width: calc(50% - 40px);
-      min-width: 280px;
+      /* width: calc(50% - 40px); */ /* Removed - Rely on base width */
+      /* min-width: 280px; */ /* Removed */
       padding: 15px;
     }
   }
@@ -211,20 +373,20 @@ body {
       width: 100%;
     }
 
-    /* Adjusts the Video Container for vertical stacking */
+    /* Adjusts the Video Container for vertical stacking - REMOVED */
     .video-container {
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
+      /* flex-direction: column; */ /* Removed */
+      /* align-items: center; */ /* Removed */
+      gap: 10px; /* Keep smaller gap for smaller screens */
+      padding: 10px; /* Keep smaller padding */
     }
 
-    /* Adjusts Fieldsets for vertical stacking */
+    /* Adjusts Fieldsets for vertical stacking - REMOVED width: 100% to keep side-by-side */
     fieldset {
-      width: 100%;
+      /* width: 100%; */ /* Removed to maintain side-by-side */
       max-width: 100%;
-      min-width: unset;
-      margin: 0 0 20px 0;
+      /* min-width: 280px; */ /* Removed */
+      margin: 0 0 20px 0; /* Keep bottom margin for spacing when wrapped if needed */
       padding: 15px;
     }
 

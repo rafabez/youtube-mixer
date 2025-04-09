@@ -30,7 +30,30 @@
   <!-- Landmark: Banner/Header -->
   <header role="banner">
     <h1>YOUTUBE MIXER</h1>
+    <button id="info-icon" class="info-icon" onclick="openInfoModal()" aria-label="Show Instructions">?</button>
   </header>
+
+  <!-- Info Modal -->
+  <div id="infoModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeInfoModal()" aria-label="Close Instructions">&times;</button>
+      <h2 id="modalTitle">How to Use YouTube Mixer</h2>
+      <ol>
+        <li><strong>Search (Optional):</strong> Use the search bar to find YouTube videos. Click 'Search' to open results in a new tab.</li>
+        <li><strong>Load Videos:</strong> Paste the full YouTube video URL (e.g., <code>https://www.youtube.com/watch?v=...</code>) into the 'Enter YouTube Link' fields for Video 1 and Video 2.</li>
+        <li><strong>Click Load:</strong> Press the 'Load' button next to each input field to load the video into its player.</li>
+        <li><strong>Playback Controls:</strong> Use the 'Play', 'Pause', and 'Stop' buttons beneath each video player to control playback individually.</li>
+        <li><strong>Mix Audio:</strong> Use the 'Audio Mixer Fader' slider at the bottom.
+          <ul>
+            <li>Slide LEFT to increase the volume of Video 1 and decrease Video 2.</li>
+            <li>Slide RIGHT to increase the volume of Video 2 and decrease Video 1.</li>
+            <li>The MIDDLE position balances the audio equally.</li>
+          </ul>
+        </li>
+      </ol>
+      <p>Enjoy mixing your videos!</p>
+    </div>
+  </div>
 
   <!-- Landmark: Search Section -->
   <div class="search-container" role="search" aria-label="Search for YouTube Videos">
@@ -54,7 +77,7 @@
       <fieldset aria-label="Controls for Video 1">
         <legend>Video 1</legend>
         <!-- Input Field for Video 1 Link and Load Button -->
-        <div>
+        <div class="video-input-group">
           <input
             type="text"
             id="videoLink1"
@@ -66,7 +89,7 @@
         <!-- YouTube Player Container for Video 1 -->
         <div id="player1"></div>
         <!-- Playback Control Buttons for Video 1 -->
-        <div>
+        <div class="playback-controls">
           <button onclick="playVideo(1)" aria-label="Play Video 1">Play</button>
           <button onclick="pauseVideo(1)" aria-label="Pause Video 1">Pause</button>
           <button onclick="stopVideo(1)" aria-label="Stop Video 1">Stop</button>
@@ -77,7 +100,7 @@
       <fieldset aria-label="Controls for Video 2">
         <legend>Video 2</legend>
         <!-- Input Field for Video 2 Link and Load Button -->
-        <div>
+        <div class="video-input-group">
           <input
             type="text"
             id="videoLink2"
@@ -89,7 +112,7 @@
         <!-- YouTube Player Container for Video 2 -->
         <div id="player2"></div>
         <!-- Playback Control Buttons for Video 2 -->
-        <div>
+        <div class="playback-controls">
           <button onclick="playVideo(2)" aria-label="Play Video 2">Play</button>
           <button onclick="pauseVideo(2)" aria-label="Pause Video 2">Pause</button>
           <button onclick="stopVideo(2)" aria-label="Stop Video 2">Stop</button>
