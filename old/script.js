@@ -1,3 +1,6 @@
+// @license MIT
+// @source https://github.com/rafabez/youtube-mixer
+
 // Variables to store YouTube player instances
 var player1, player2;
 
