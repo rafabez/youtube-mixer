@@ -1,7 +1,19 @@
 # Security settings for API directory
 
-# Prevent direct access to config.php
-<Files "config.php">
+# Prevent direct access to config files
+<FilesMatch "^(config|config-secure|config-invidious|\.env).*\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Prevent access to .env file
+<Files ".env">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Prevent access to .env.example
+<Files ".env.example">
     Order Allow,Deny
     Deny from all
 </Files>
@@ -12,3 +24,14 @@ php_flag log_errors on
 
 # Set maximum execution time
 php_value max_execution_time 30
+
+# ============================================
+# OPÇÃO: Definir variáveis de ambiente via .htaccess
+# ============================================
+# Descomente as linhas abaixo e substitua pelos seus valores
+# Nota: Nem todos os servidores permitem SetEnv em .htaccess
+
+# SetEnv YOUTUBE_API_KEY "sua_api_key_aqui"
+# SetEnv INVIDIOUS_INSTANCE "https://inv.nadeko.net"
+# SetEnv MAX_RESULTS "20"
+# SetEnv APP_ENV "production"

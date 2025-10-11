@@ -56,11 +56,7 @@ async function searchVideos() {
 
   try {
     // Call PHP backend endpoint
-    // OPTION 1: YouTube API (requires API key, has quota limits)
-    // const response = await fetch(`api/youtube-search.php?q=${encodeURIComponent(query)}`);
-    
-    // OPTION 2: Invidious API (no API key needed, unlimited searches, privacy-respecting)
-    const response = await fetch(`api/invidious-search.php?q=${encodeURIComponent(query)}`);
+    const response = await fetch(`api/youtube-search.php?q=${encodeURIComponent(query)}`);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

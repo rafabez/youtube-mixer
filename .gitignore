@@ -1,0 +1,32 @@
+# Environment variables (NEVER commit these!)
+.env
+api/.env
+
+# API configuration with sensitive data
+api/config.php
+
+# Old/backup files
+old/
+*.bak
+*.backup
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+error_log
+
+# Temporary files
+tmp/
+temp/
+cache/

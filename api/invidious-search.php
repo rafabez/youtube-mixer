@@ -10,7 +10,7 @@
  */
 
 // Include configuration
-require_once 'config-invidious.php';
+require_once 'config.php';
 
 // Set headers for CORS and JSON response
 header('Content-Type: application/json');
