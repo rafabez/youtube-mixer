@@ -1,4 +1,4 @@
-// @license MIT
+// @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt MIT
 // @source https://github.com/rafabez/youtube-mixer
 
 // Variables to store YouTube player instances
@@ -187,3 +187,5 @@ function addKeyboardShortcuts() {
 window.onload = function() {
   addKeyboardShortcuts();
 };
+
+// @license-end
