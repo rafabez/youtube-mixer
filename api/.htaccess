@@ -1,0 +1,14 @@
+# Security settings for API directory
+
+# Prevent direct access to config.php
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Enable error logging (optional, for debugging)
+php_flag display_errors off
+php_flag log_errors on
+
+# Set maximum execution time
+php_value max_execution_time 30

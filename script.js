@@ -36,20 +36,194 @@ function onYouTubeIframeAPIReady() {
 
 /**
  * Function to Search YouTube Videos.
- * Opens search results in a new browser tab.
+ * Fetches results from PHP backend and displays in modal.
  */
-function searchVideos() {
-  var query = document.getElementById('searchBox').value.trim(); // Gets and trims the search query
-  if (query) {
-    // Opens YouTube search results in a new tab
-    window.open(
-      'https://www.youtube.com/results?search_query=' + encodeURIComponent(query),
-      '_blank'
-    );
-  } else {
-    // Alerts the user if the search field is empty
+async function searchVideos() {
+  var query = document.getElementById('searchBox').value.trim();
+  
+  if (!query) {
     alert('Please enter a search term.');
+    return;
   }
+
+  // Show loading state
+  showSearchLoading();
+
+  try {
+    // Call PHP backend endpoint
+    const response = await fetch(`api/youtube-search.php?q=${encodeURIComponent(query)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.error) {
+      throw new Error(data.error);
+    }
+    
+    // Display results in modal
+    displaySearchResults(data.items || []);
+    
+  } catch (error) {
+    console.error('Search error:', error);
+    alert('Search failed. Please try again. Error: ' + error.message);
+    closeSearchModal();
+  }
+}
+
+/**
+ * Shows loading state in search modal
+ */
+function showSearchLoading() {
+  const modal = document.getElementById('searchModal');
+  const resultsContainer = document.getElementById('searchResults');
+  
+  if (modal && resultsContainer) {
+    resultsContainer.innerHTML = `
+      <div class="search-loading">
+        <div class="spinner"></div>
+        <p>Searching YouTube...</p>
+      </div>
+    `;
+    modal.classList.remove('hidden');
+  }
+}
+
+/**
+ * Displays search results in the modal
+ * @param {Array} items - Array of video items from YouTube API
+ */
+function displaySearchResults(items) {
+  const modal = document.getElementById('searchModal');
+  const resultsContainer = document.getElementById('searchResults');
+  
+  if (!modal || !resultsContainer) {
+    console.error('Search modal elements not found');
+    return;
+  }
+  
+  // Clear loading state
+  resultsContainer.innerHTML = '';
+  
+  // Check if we have results
+  if (!items || items.length === 0) {
+    resultsContainer.innerHTML = `
+      <div class="no-results">
+        <p>No videos found. Try a different search term.</p>
+      </div>
+    `;
+    modal.classList.remove('hidden');
+    return;
+  }
+  
+  // Create result cards
+  items.forEach(item => {
+    const videoId = item.videoId || item.id?.videoId;
+    const snippet = item.snippet;
+    
+    if (!videoId || !snippet) return;
+    
+    const card = document.createElement('div');
+    card.className = 'search-result-card';
+    card.innerHTML = `
+      <div class="result-thumbnail">
+        <img src="${snippet.thumbnails.medium.url}" alt="${escapeHtml(snippet.title)}" loading="lazy">
+        <div class="result-overlay">
+          <button class="deck-button deck-a" onclick="loadVideoFromSearch('${videoId}', 1)" title="Load in Deck A">
+            Load in Deck A
+          </button>
+          <button class="deck-button deck-b" onclick="loadVideoFromSearch('${videoId}', 2)" title="Load in Deck B">
+            Load in Deck B
+          </button>
+        </div>
+      </div>
+      <div class="result-info">
+        <h3 class="result-title">${escapeHtml(snippet.title)}</h3>
+        <p class="result-channel">${escapeHtml(snippet.channelTitle)}</p>
+        <p class="result-description">${escapeHtml(truncateText(snippet.description, 100))}</p>
+      </div>
+    `;
+    
+    resultsContainer.appendChild(card);
+  });
+  
+  // Show modal
+  modal.classList.remove('hidden');
+}
+
+/**
+ * Loads a video from search results into specified deck
+ * @param {string} videoId - YouTube video ID
+ * @param {number} deckNumber - Deck number (1 or 2)
+ */
+function loadVideoFromSearch(videoId, deckNumber) {
+  if (!videoId) {
+    alert('Invalid video ID');
+    return;
+  }
+  
+  // Load video into the appropriate player
+  if (deckNumber === 1) {
+    player1.cueVideoById(videoId);
+    // Update the input field with the full URL
+    document.getElementById('videoLink1').value = `https://www.youtube.com/watch?v=${videoId}`;
+  } else if (deckNumber === 2) {
+    player2.cueVideoById(videoId);
+    // Update the input field with the full URL
+    document.getElementById('videoLink2').value = `https://www.youtube.com/watch?v=${videoId}`;
+  }
+  
+  // Close the search modal
+  closeSearchModal();
+  
+  // Optional: Show confirmation
+  console.log(`Video ${videoId} loaded into Deck ${deckNumber === 1 ? 'A' : 'B'}`);
+}
+
+/**
+ * Opens the search modal
+ */
+function openSearchModal() {
+  const modal = document.getElementById('searchModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+  }
+}
+
+/**
+ * Closes the search modal
+ */
+function closeSearchModal() {
+  const modal = document.getElementById('searchModal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+/**
+ * Escapes HTML to prevent XSS
+ * @param {string} text - Text to escape
+ * @returns {string} - Escaped text
+ */
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+/**
+ * Truncates text to specified length
+ * @param {string} text - Text to truncate
+ * @param {number} maxLength - Maximum length
+ * @returns {string} - Truncated text
+ */
+function truncateText(text, maxLength) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
 }
 
 /**
@@ -161,6 +335,15 @@ function addKeyboardShortcuts() {
   document.addEventListener('keydown', function(event) {
     const activeElement = document.activeElement;
     const isTyping = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
+
+    // --- ESC Key: Close Search Modal ---
+    if (event.key === 'Escape') {
+      const searchModal = document.getElementById('searchModal');
+      if (searchModal && !searchModal.classList.contains('hidden')) {
+        closeSearchModal();
+        return;
+      }
+    }
 
     // --- Search Shortcut ---
     if (activeElement.id === 'searchBox' && event.key === 'Enter') {
