@@ -4,19 +4,43 @@
 YouTube Video Mixer is a web application that allows users to search, load, and mix two YouTube videos. Users can control video playback and adjust the audio mix between the two videos with an interactive slider.
 
 ## Features
-- **Search YouTube Videos:** Search for videos directly from the app.
-- **Load Videos:** Load two different YouTube videos for simultaneous playback.
-- **Playback Controls:** Play, pause, and stop each video individually.
-- **Audio Mixer:** Adjust the audio balance between the two videos with a slider.
-- **Keyboard Shortcuts:**
-  - Press **Enter** in the search box to trigger the search.
-  - Use **Arrow Left/Right** keys to adjust the audio fader.
+- **🔍 Smart Search Modal:** Search YouTube videos in a beautiful modal interface
+  - Results appear instantly in a grid layout
+  - Hover over videos to see "Load in Deck A/B" buttons
+  - One-click loading directly into either deck
+  - Press ESC to close, Enter to search
+- **🎥 Dual Video Players:** Load and play two YouTube videos simultaneously
+- **🎚️ Audio Crossfader:** Smooth constant-power crossfading between videos
+- **🎮 Playback Controls:** Independent play, pause, and stop for each video
+- **⌨️ Keyboard Shortcuts:**
+  - **Q/W/E:** Control Video 1 (Play/Pause/Stop)
+  - **A/S/D:** Control Video 2 (Play/Pause/Stop)
+  - **Arrow Keys:** Adjust crossfader
+  - **Shift + Scroll:** Adjust crossfader with mouse
+  - **Enter:** Trigger search
+  - **ESC:** Close search modal
 
 ## Technologies Used
 - **HTML5** for page structure
 - **CSS3** for styling and responsiveness
 - **JavaScript (ES6)** for interactivity
 - **YouTube IFrame Player API** for video playback integration
+- **PHP Backend** for secure API key storage
+- **Invidious API** (optional) for privacy-respecting search
+
+## Free Software Compliance
+
+This project is **Free Software** licensed under the MIT License:
+- ✅ Source code available: https://github.com/rafabez/youtube-mixer
+- ✅ Direct download: https://github.com/rafabez/youtube-mixer/archive/refs/heads/main.zip
+- ✅ LibreJS compatible with proper license headers
+- ✅ Optional Invidious integration for privacy (see `FREE_SOFTWARE_COMPLIANCE.md`)
+
+**Privacy Options:**
+- Use **YouTube API** (default) - requires API key, has quota limits
+- Use **Invidious API** (optional) - no API key, no limits, no tracking
+
+See `FREE_SOFTWARE_COMPLIANCE.md` for details on switching to Invidious.
 
 ## File Structure
 ```
@@ -52,10 +76,14 @@ You can deploy this project using GitHub Pages:
 4. Your app will be live at `https://rafabez.github.io/youtube-mixer/`
 
 ## Usage
-1. **Search Videos:** Enter a search term and click **Search**.
-2. **Load Videos:** Paste YouTube links into the respective fields and click **Load**.
-3. **Control Playback:** Use the **Play**, **Pause**, and **Stop** buttons for each video.
-4. **Mix Audio:** Move the slider to balance audio between the two videos.
+1. **Search Videos:** 
+   - Type in the search bar and click **Search** (or press Enter)
+   - Browse results in the modal
+   - Hover over a video and click **"Load in Deck A"** or **"Load in Deck B"**
+   - Video loads instantly and modal closes
+2. **Alternative - Manual URL:** Paste YouTube links into the input fields and click **Load**
+3. **Control Playback:** Use buttons or keyboard shortcuts (Q/W/E for Deck A, A/S/D for Deck B)
+4. **Mix Audio:** Move the crossfader slider to balance audio between videos (or use arrow keys)
 
 ## Contributing
 Contributions are welcome! Feel free to submit pull requests or open issues for feature suggestions and bug fixes.

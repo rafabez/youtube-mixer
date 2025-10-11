@@ -1,5 +1,10 @@
 // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt MIT
 // @source https://github.com/rafabez/youtube-mixer
+// @source-download https://github.com/rafabez/youtube-mixer/archive/refs/heads/main.zip
+// 
+// This is Free Software licensed under the MIT License.
+// You are free to use, modify, and distribute this software.
+// Source code is available at: https://github.com/rafabez/youtube-mixer
 
 // Variables to store YouTube player instances
 var player1, player2;

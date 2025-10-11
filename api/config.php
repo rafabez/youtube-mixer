@@ -19,5 +19,7 @@ define('ALLOWED_ORIGINS', [
 ]);
 
 // API Settings
-define('MAX_RESULTS', 20);  // Maximum search results to return
+// YouTube API allows max 50 results per request
+// More results = better selection, but slower loading and more API quota usage
+define('MAX_RESULTS', 30);  // Maximum search results to return (1-50)
 define('CACHE_DURATION', 3600);  // Cache results for 1 hour (optional)
