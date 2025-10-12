@@ -57,7 +57,7 @@ async function searchVideos() {
   try {
     // Call PHP backend endpoint
     const response = await fetch(`api/youtube-search.php?q=${encodeURIComponent(query)}`);
-    
+    //const response = await fetch(`api/invidious-search.php?q=${query}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
