@@ -1,0 +1,26 @@
+# youtubemixer.online — PHP site behind the VPS-wide Traefik (/srv/stacks/traefik).
+#
+# Traefik runs with network_mode: host and the Docker provider, so no host port is
+# published here. php:apache is used (not nginx) so the existing api/.htaccess rules
+# keep working. Hostnames live in .env (ROUTER_RULE): Let's Encrypt issues one
+# certificate for every host in the rule, so the real domain must only be added
+# once its DNS points at this VPS.
+name: youtubemixer
+services:
+  site:
+    image: php:8.3-apache
+    container_name: youtubemixer-site
+    restart: unless-stopped
+    volumes:
+      - ./site:/var/www/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.youtubemixer.entrypoints=websecure"
+      - "traefik.http.routers.youtubemixer.rule=${ROUTER_RULE}"
+      - "traefik.http.routers.youtubemixer.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.youtubemixer.middlewares=youtubemixer-www"
+      - "traefik.http.services.youtubemixer.loadbalancer.server.port=80"
+      # www.youtubemixer.online -> youtubemixer.online (no-op for other hosts)
+      - "traefik.http.middlewares.youtubemixer-www.redirectregex.regex=^https://www\\.youtubemixer\\.online/(.*)"
+      - "traefik.http.middlewares.youtubemixer-www.redirectregex.replacement=https://youtubemixer.online/$${1}"
+      - "traefik.http.middlewares.youtubemixer-www.redirectregex.permanent=true"

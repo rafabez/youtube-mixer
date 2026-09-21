@@ -96,8 +96,9 @@ define('INVIDIOUS_FALLBACK_INSTANCES', [
 
 // Allowed origins for CORS
 define('ALLOWED_ORIGINS', [
-    'https://youtubemixer.com.br',
-    'https://www.youtubemixer.com.br',
+    'https://youtubemixer.online',
+    'https://www.youtubemixer.online',
+    'https://youtubemixer.69.62.117.27.sslip.io',
     'http://localhost',  // Para testes locais
     'http://127.0.0.1'   // Para testes locais
 ]);

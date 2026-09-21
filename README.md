@@ -1,6 +1,6 @@
 # YouTube Video Mixer
 
-[Live Demo](https://www.youtubemixer.com.br)
+[Live Demo](https://youtubemixer.online)
 
 DJ-style video mixer for YouTube. Search, load, and crossfade between two videos with smooth audio mixing.
 
@@ -48,5 +48,5 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 **Rafael Beznos**
 
-[LinkedIn](https://www.linkedin.com/in/rafaelbeznos) | [Instagram](https://www.instagram.com/oceanicaos.art) | [Live Demo](https://www.youtubemixer.com.br)
+[LinkedIn](https://www.linkedin.com/in/rafaelbeznos) | [Instagram](https://www.instagram.com/oceanicaos.art) | [Live Demo](https://youtubemixer.online)
 
