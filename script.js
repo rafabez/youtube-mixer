@@ -644,15 +644,18 @@ function addKeyboardShortcuts() {
   // --- Keep shortcuts working after clicking a video ---
   // Clicking a YouTube player moves keyboard focus into its iframe, where this page
   // no longer receives key presses. Take focus back once the click is done.
+  // Chrome reports this with a window blur event; Firefox doesn't, so also check periodically.
+  function reclaimFocusFromPlayer() {
+    const activeElement = document.activeElement;
+    if (activeElement && activeElement.tagName === 'IFRAME') {
+      activeElement.blur();
+      window.focus();
+    }
+  }
   window.addEventListener('blur', function() {
-    setTimeout(function() {
-      const activeElement = document.activeElement;
-      if (activeElement && activeElement.tagName === 'IFRAME') {
-        activeElement.blur();
-        window.focus();
-      }
-    }, 0);
+    setTimeout(reclaimFocusFromPlayer, 0);
   });
+  setInterval(reclaimFocusFromPlayer, 250);
 }
 
 // Restore the previous session right away (this script runs after the markup it needs)
