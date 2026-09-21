@@ -1,0 +1,7 @@
+# Make browsers revalidate the page, script and styles on every visit (cheap 304s via ETag),
+# so a deploy never leaves a visitor with a new index.html and an old script.js.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html|js|css)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>

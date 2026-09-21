@@ -15,7 +15,7 @@ SSH=(ssh -i "$KEY" -o BatchMode=yes "$HOST")
 tar -C "$ROOT/deploy" -cf - docker-compose.yml .env.example | "${SSH[@]}" "tar -C $DIR -xf - && [ -f $DIR/.env ] || cp $DIR/.env.example $DIR/.env"
 
 # Site files. api/.env (the YouTube key) lives only on the server and is never overwritten.
-tar -C "$ROOT" -cf - index.html script.js styles.css bg.png favicon.ico \
+tar -C "$ROOT" -cf - .htaccess index.html script.js styles.css bg.png favicon.ico \
   api/.htaccess api/config.php api/common.php api/youtube-search.php api/invidious-search.php \
   | "${SSH[@]}" "tar -C $DIR/site -xf -"
 

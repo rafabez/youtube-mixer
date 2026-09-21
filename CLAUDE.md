@@ -21,6 +21,7 @@ Then open http://localhost:8000. Playback/crossfading works from any static serv
 `deploy/deploy.sh` pushes the site to the Hostinger VPS (69.62.117.27, SSH key `~/.ssh/d2deploy`) at `/srv/stacks/youtubemixer` and runs `docker compose up -d`. The stack is one `php:8.3-apache` container (Apache so `api/.htaccess` keeps working) behind the VPS-wide Traefik at `/srv/stacks/traefik`, which handles TLS via Let's Encrypt. Other projects share this VPS; don't touch their stacks.
 
 - Hostnames are in the server-side `/srv/stacks/youtubemixer/.env` (`ROUTER_RULE`), created once from `deploy/.env.example` and never overwritten. Only add a hostname once its DNS resolves to the VPS, or the whole certificate fails. Test host: `youtubemixer.69.62.117.27.sslip.io`.
+- The root `.htaccess` sends `Cache-Control: no-cache` for html/js/css so a deploy never pairs a new `index.html` with a cached old `script.js`. It needs `mod_headers`, which the compose `command` enables.
 - `site/api/.env` (the YouTube key) exists only on the server; `deploy.sh` never ships or overwrites it.
 - DNS is at Namecheap (not Hostinger).
 
@@ -32,6 +33,7 @@ Then open http://localhost:8000. Playback/crossfading works from any static serv
   - Search: `searchVideos()` tries `api/youtube-search.php`, then falls back to `api/invidious-search.php` on any failure (e.g. quota exceeded). Both return the same YouTube-API-shaped JSON. Result buttons use `addEventListener`, not inline handlers.
   - Deck state lives in the `decks` object (videoId, volume trim, speed, cue). Every video load goes through `loadDeck()`. Player volume = crossfader gain × deck trim, set in `applyVolumes()`. `decks` and the fader are saved to `localStorage` (`youtubeMixerState`) and restored on load, before the YouTube API initializes.
   - YouTube ignores `setPlaybackRate` before a video loads, so speed is re-applied in `onStateChange`.
+  - Clicking a player moves keyboard focus into its cross-origin iframe, which swallows key presses; a window `blur` handler in `addKeyboardShortcuts()` takes focus back so shortcuts keep working.
   - Keyboard shortcuts in `addKeyboardShortcuts()` (Q/W/E/R deck A, A/S/D/F deck B with Shift+R/F to set cue, arrows / Shift+scroll for fader, Enter search or load, Esc close modal).
 - `api/` — PHP search proxy that keeps the API key server-side.
   - `config.php` loads `api/.env` into the environment (server env vars win) and defines constants. All options are documented in `api/.env.example`. A missing YouTube key is not fatal.

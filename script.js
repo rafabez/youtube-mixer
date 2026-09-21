@@ -640,6 +640,19 @@ function addKeyboardShortcuts() {
       fader.dispatchEvent(new Event('input', { bubbles: true }));
     }
   }, { passive: false }); // Need passive: false to allow preventDefault
+
+  // --- Keep shortcuts working after clicking a video ---
+  // Clicking a YouTube player moves keyboard focus into its iframe, where this page
+  // no longer receives key presses. Take focus back once the click is done.
+  window.addEventListener('blur', function() {
+    setTimeout(function() {
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.tagName === 'IFRAME') {
+        activeElement.blur();
+        window.focus();
+      }
+    }, 0);
+  });
 }
 
 // Restore the previous session right away (this script runs after the markup it needs)

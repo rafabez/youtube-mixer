@@ -11,6 +11,8 @@ services:
     image: php:8.3-apache
     container_name: youtubemixer-site
     restart: unless-stopped
+    # mod_headers is off in the base image; the root .htaccess uses it for Cache-Control
+    command: ["sh", "-c", "a2enmod -q headers && exec apache2-foreground"]
     volumes:
       - ./site:/var/www/html:ro
     labels:
