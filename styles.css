@@ -656,6 +656,44 @@ body {
     margin-right: auto; /* Center the container */
   }
   
+  /* Auto Mix (background mode) controls, above the fader */
+  .auto-mix {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #444;
+  }
+  .auto-mix-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  /* :not() chain matches the global button rule's specificity so these colors win */
+  .auto-mix button.auto-mix-toggle:not(.info-icon):not(.modal-close) {
+    background-color: #555;
+    min-width: 160px;
+  }
+  .auto-mix button.auto-mix-toggle.active:not(.info-icon):not(.modal-close) {
+    background-color: #2a9d5c;
+    box-shadow: 0 0 10px rgba(42, 157, 92, 0.6);
+  }
+  .auto-mix button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .auto-mix-status {
+    margin: 0;
+    max-width: 90%;
+    font-size: 0.9em;
+    color: #bbb;
+    line-height: 1.4;
+  }
+
   /* Fader (Volume Control) Styles */
   #faderLabel {
     display: block; /* Makes the label a block element */

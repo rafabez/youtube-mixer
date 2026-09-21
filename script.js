@@ -51,6 +51,13 @@ function createPlayer(elementId, deckNumber) {
         if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.CUED) {
           applySpeed(deckNumber);
         }
+        // Show the Auto Mix title once it is known
+        if (event.data === YT.PlayerState.PLAYING && autoMix.enabled && !autoMix.fading && deckNumber === autoMix.activeDeck) {
+          updateAutoMixUI();
+        }
+      },
+      onError: function() {
+        autoMixOnError(deckNumber);
       }
     }
   });
@@ -212,18 +219,24 @@ function loadVideoFromSearch(videoId, deckNumber) {
 }
 
 /**
- * Cues a video on a deck, updates its URL field and remembers it.
+ * Cues a video on a deck (or starts it, with autoplay), updates its URL field and remembers it.
  * @param {number} deckNumber - Deck number (1 or 2)
  * @param {string} videoId - YouTube video ID
+ * @param {boolean} [autoplay] - Start playing right away
  */
-function loadDeck(deckNumber, videoId) {
+function loadDeck(deckNumber, videoId, autoplay) {
   var player = getPlayer(deckNumber);
   if (!isPlayerReady(player)) {
     alert('The player is still loading. Please try again in a moment.');
     return;
   }
 
-  player.cueVideoById(videoId);
+  // playVideo() right after cueVideoById() is dropped while the video loads, so use loadVideoById()
+  if (autoplay) {
+    player.loadVideoById(videoId);
+  } else {
+    player.cueVideoById(videoId);
+  }
   document.getElementById('videoLink' + deckNumber).value = `https://www.youtube.com/watch?v=${videoId}`;
 
   // Clear the previous video's cue point
@@ -527,6 +540,7 @@ function extractVideoID(url) {
  * - Shift + Scroll: Adjust fader.
  * - Q/W/E: Control Video 1 (Play/Pause/Stop). R: jump to cue, Shift+R: set cue.
  * - A/S/D: Control Video 2 (Play/Pause/Stop). F: jump to cue, Shift+F: set cue.
+ * - N: Skip to the next video in Auto Mix.
  */
 function addKeyboardShortcuts() {
   // Event listener for keydown events
@@ -616,6 +630,10 @@ function addKeyboardShortcuts() {
       case 'F':
         event.shiftKey ? setCue(2) : jumpToCue(2);
         break;
+      // Auto Mix
+      case 'N':
+        skipAutoMix();
+        break;
       default:
         return; // Not a playback shortcut key
     }
@@ -656,6 +674,276 @@ function addKeyboardShortcuts() {
     setTimeout(reclaimFocusFromPlayer, 0);
   });
   setInterval(reclaimFocusFromPlayer, 250);
+}
+
+/* ============================================
+ * Auto Mix (background mode)
+ * Keeps playing related videos, crossfading from the audible deck to the other one
+ * shortly before each video ends.
+ * ============================================ */
+
+// Seconds before the end of a video when the crossfade to the next one starts
+var AUTO_MIX_FADE_SECONDS = 10;
+// Crossfade length when skipping or recovering from an unplayable video
+var AUTO_MIX_QUICK_FADE_SECONDS = 3;
+// Wait before trying again when no related video could be found
+var AUTO_MIX_RETRY_MS = 15000;
+
+var autoMix = {
+  enabled: false,
+  activeDeck: 1,     // Deck currently audible
+  seedId: null,      // Video Auto Mix started from; picks stay close to it
+  played: [],        // Video IDs already played (or unplayable), never picked again
+  fading: false,
+  fadeTimer: null,
+  monitorTimer: null,
+  retryAt: 0,
+  relatedCache: {}   // videoId -> Promise of related items
+};
+
+function toggleAutoMix() {
+  if (autoMix.enabled) {
+    stopAutoMix();
+  } else {
+    startAutoMix();
+  }
+}
+
+function startAutoMix() {
+  if (!isPlayerReady(player1) || !isPlayerReady(player2)) {
+    alert('The players are still loading. Please try again in a moment.');
+    return;
+  }
+
+  // Continue from the deck that is playing, else from a deck with a video (Deck A first)
+  var deck = [1, 2].find(function(n) { return getPlayer(n).getPlayerState() === YT.PlayerState.PLAYING; })
+    || [1, 2].find(function(n) { return decks[n].videoId; });
+  if (!deck) {
+    alert('Load a video on a deck first. Auto Mix continues from it with related videos.');
+    return;
+  }
+
+  autoMix.enabled = true;
+  autoMix.activeDeck = deck;
+  autoMix.seedId = decks[deck].videoId;
+  autoMix.played = [autoMix.seedId];
+  autoMix.fading = false;
+  autoMix.retryAt = 0;
+
+  getPlayer(deck).playVideo();
+  animateFader(deck === 1 ? 0 : 100, 1.5);
+  getRelated(autoMix.seedId); // Prefetch so the first transition is instant
+
+  clearInterval(autoMix.monitorTimer);
+  autoMix.monitorTimer = setInterval(checkAutoMix, 1000);
+  updateAutoMixUI();
+}
+
+function stopAutoMix() {
+  autoMix.enabled = false;
+  autoMix.fading = false;
+  clearInterval(autoMix.monitorTimer);
+  clearInterval(autoMix.fadeTimer);
+  updateAutoMixUI('Auto Mix is off.');
+}
+
+/**
+ * Skips to the next related video with a short crossfade.
+ */
+function skipAutoMix() {
+  if (autoMix.enabled && !autoMix.fading) {
+    autoMixNext(AUTO_MIX_QUICK_FADE_SECONDS);
+  }
+}
+
+/**
+ * Runs every second: starts the crossfade when the audible video is about to end.
+ */
+function checkAutoMix() {
+  if (!autoMix.enabled || autoMix.fading || Date.now() < autoMix.retryAt) {
+    return;
+  }
+  var player = getPlayer(autoMix.activeDeck);
+  var state = player.getPlayerState();
+
+  if (state === YT.PlayerState.ENDED) {
+    autoMixNext(AUTO_MIX_QUICK_FADE_SECONDS);
+    return;
+  }
+  if (state !== YT.PlayerState.PLAYING) {
+    return; // Paused by the user: the mix waits too
+  }
+
+  var data = player.getVideoData();
+  var duration = player.getDuration();
+  if (!duration || (data && data.isLive)) {
+    return; // Live streams never end; use Skip to move on
+  }
+
+  // Remaining real time, taking the deck's playback speed into account
+  var remaining = (duration - player.getCurrentTime()) / decks[autoMix.activeDeck].speed;
+  if (remaining <= AUTO_MIX_FADE_SECONDS) {
+    autoMixNext(Math.max(remaining, 1));
+  }
+}
+
+/**
+ * Loads the next related video on the other deck, starts it and crossfades to it.
+ * @param {number} fadeSeconds - Crossfade length
+ */
+async function autoMixNext(fadeSeconds) {
+  if (autoMix.fading) return;
+  autoMix.fading = true;
+
+  var fromDeck = autoMix.activeDeck;
+  var toDeck = fromDeck === 1 ? 2 : 1;
+
+  setAutoMixStatus('Finding the next video…');
+  var next = await pickNextVideo();
+  if (!autoMix.enabled) return;
+
+  if (!next) {
+    autoMix.fading = false;
+    autoMix.retryAt = Date.now() + AUTO_MIX_RETRY_MS;
+    setAutoMixStatus('Couldn\'t find a related video right now. Trying again shortly…');
+    return;
+  }
+
+  autoMix.played.push(next.videoId);
+  loadDeck(toDeck, next.videoId, true);
+  autoMix.activeDeck = toDeck;
+  setAutoMixStatus('Mixing into Deck ' + deckLetter(toDeck) + ': ' + next.title);
+
+  animateFader(toDeck === 1 ? 0 : 100, fadeSeconds, function() {
+    getPlayer(fromDeck).pauseVideo();
+    autoMix.fading = false;
+    updateAutoMixUI();
+    getRelated(next.videoId); // Prefetch for the next transition
+  });
+}
+
+/**
+ * Chooses the next video from videos related to the seed and to the last played ones,
+ * skipping anything already played. Returns {videoId, title} or null.
+ */
+async function pickNextVideo() {
+  var recent = autoMix.played.slice(-2).filter(function(id) { return id !== autoMix.seedId; });
+  var sources = [{ id: autoMix.seedId, weight: 2 }].concat(recent.map(function(id) { return { id: id, weight: 1 }; }));
+
+  var pick = await rankRelated(sources);
+  if (!pick) {
+    // Everything close to the seed was played: widen to the last few videos
+    pick = await rankRelated(autoMix.played.slice(-5).map(function(id) { return { id: id, weight: 1 }; }));
+  }
+  return pick;
+}
+
+async function rankRelated(sources) {
+  var lists = await Promise.all(sources.map(function(source) {
+    return getRelated(source.id).then(function(items) { return { items: items, weight: source.weight }; });
+  }));
+
+  var scores = {};
+  var titles = {};
+  lists.forEach(function(list) {
+    list.items.forEach(function(item, rank) {
+      var id = item.videoId;
+      if (!isValidVideoId(id) || autoMix.played.includes(id) || id === decks[1].videoId || id === decks[2].videoId) {
+        return;
+      }
+      // Videos higher in a related list, or related to several sources, score higher
+      scores[id] = (scores[id] || 0) + list.weight * (1 - rank / (list.items.length + 1));
+      titles[id] = (item.snippet && item.snippet.title) || '';
+    });
+  });
+
+  var ranked = Object.keys(scores).sort(function(a, b) { return scores[b] - scores[a]; });
+  if (!ranked.length) return null;
+
+  // Pick randomly among the best few for some variety
+  var id = ranked[Math.floor(Math.random() * Math.min(3, ranked.length))];
+  return { videoId: id, title: titles[id] };
+}
+
+/**
+ * Related videos for a video ID (cached per page; failures are retried next time).
+ */
+function getRelated(videoId) {
+  if (!autoMix.relatedCache[videoId]) {
+    autoMix.relatedCache[videoId] = fetch(`api/related.php?v=${encodeURIComponent(videoId)}`)
+      .then(function(response) { return response.ok ? response.json() : {}; })
+      .then(function(data) { return data.items || []; })
+      .catch(function() { return []; })
+      .then(function(items) {
+        if (!items.length) delete autoMix.relatedCache[videoId];
+        return items;
+      });
+  }
+  return autoMix.relatedCache[videoId];
+}
+
+/**
+ * Handles a player error (e.g. the video can't be embedded) while Auto Mix is on.
+ */
+function autoMixOnError(deckNumber) {
+  if (!autoMix.enabled || deckNumber !== autoMix.activeDeck) return;
+
+  if (autoMix.fading) {
+    // The incoming video failed: fade back to the previous deck; the next check picks another
+    // (the failed ID is already in autoMix.played)
+    clearInterval(autoMix.fadeTimer);
+    autoMix.activeDeck = deckNumber === 1 ? 2 : 1;
+    autoMix.fading = false;
+    animateFader(autoMix.activeDeck === 1 ? 0 : 100, 1);
+  } else {
+    autoMixNext(AUTO_MIX_QUICK_FADE_SECONDS);
+  }
+}
+
+/**
+ * Moves the crossfader to a target position over time.
+ * Progress is based on the clock, so throttled timers in background tabs still finish on time.
+ */
+function animateFader(target, seconds, done) {
+  clearInterval(autoMix.fadeTimer);
+  var fader = document.getElementById('fader');
+  var start = parseInt(fader.value, 10);
+  var startTime = Date.now();
+  var duration = Math.max(seconds, 0.1) * 1000;
+
+  autoMix.fadeTimer = setInterval(function() {
+    var progress = Math.min(1, (Date.now() - startTime) / duration);
+    fader.value = Math.round(start + (target - start) * progress);
+    applyVolumes();
+    if (progress >= 1) {
+      clearInterval(autoMix.fadeTimer);
+      saveState();
+      if (done) done();
+    }
+  }, 100);
+}
+
+function deckLetter(deckNumber) {
+  return deckNumber === 1 ? 'A' : 'B';
+}
+
+function setAutoMixStatus(message) {
+  document.getElementById('autoMixStatus').textContent = message;
+}
+
+function updateAutoMixUI(message) {
+  var toggle = document.getElementById('autoMixToggle');
+  toggle.textContent = autoMix.enabled ? 'Auto Mix: On' : 'Auto Mix: Off';
+  toggle.setAttribute('aria-pressed', String(autoMix.enabled));
+  toggle.classList.toggle('active', autoMix.enabled);
+  document.getElementById('autoMixSkip').disabled = !autoMix.enabled;
+
+  if (message) {
+    setAutoMixStatus(message);
+  } else if (autoMix.enabled) {
+    var data = getPlayer(autoMix.activeDeck).getVideoData();
+    setAutoMixStatus('Now playing on Deck ' + deckLetter(autoMix.activeDeck) + (data && data.title ? ': ' + data.title : ''));
+  }
 }
 
 // Restore the previous session right away (this script runs after the markup it needs)

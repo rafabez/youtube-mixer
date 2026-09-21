@@ -10,6 +10,7 @@ DJ-style video mixer for YouTube. Search, load, and crossfade between two videos
 - **🎚️ Audio Crossfader:** Professional constant-power panning for smooth transitions
 - **🎮 Dual Decks:** Independent playback controls for each video
 - **🎛️ Deck Controls:** Per-deck volume, playback speed (0.5×–2×) and cue points
+- **📻 Auto Mix (Background Mode):** Keeps playing related videos, crossfading between the decks automatically. No login needed
 - **💾 Remembers Your Session:** Decks, volumes, speeds, cue points and fader position are restored on your next visit
 - **⌨️ Keyboard Shortcuts:** Full keyboard control for hands-free mixing
 - **📱 Responsive:** Works on desktop and mobile devices
@@ -32,6 +33,7 @@ DJ-style video mixer for YouTube. Search, load, and crossfade between two videos
 | **A/S/D** | Play/Pause/Stop Deck B |
 | **R / F** | Jump to cue point (Deck A / B) |
 | **Shift + R / F** | Set cue point (Deck A / B) |
+| **N** | Skip to the next video (Auto Mix) |
 | **← →** | Adjust crossfader |
 | **Shift + Scroll** | Adjust crossfader with mouse |
 | **Enter** | Search (in search box) / Load video (in a deck's link field) |

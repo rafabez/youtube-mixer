@@ -16,9 +16,10 @@ Server-side search proxy for the mixer.
 - **`.env`** - Your settings and API key (never commit!)
 - **`.env.example`** - Template for `.env` with all options
 - **`config.php`** - Loads settings from the environment / `.env`
-- **`common.php`** - Shared helpers: CORS, request parsing, HTTP and file cache
+- **`common.php`** - Shared helpers: CORS, request parsing, HTTP and file cache, Invidious access
 - **`youtube-search.php`** - YouTube Data API search endpoint (cached)
 - **`invidious-search.php`** - Invidious search endpoint, used by the frontend when YouTube search fails
+- **`related.php`** - Related videos for Auto Mix (Invidious recommendations, with a YouTube same-channel fallback)
 - **`.htaccess`** - Security rules
 
 ## Security

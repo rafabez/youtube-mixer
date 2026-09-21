@@ -90,6 +90,17 @@
       </div>
 
       <div class="instructions-section">
+        <h3>📻 Auto Mix (Background Mode)</h3>
+        <p>Want music while you work? Load a video, then click <strong>"Auto Mix: Off"</strong> to switch it on.</p>
+        <ul>
+          <li>When a video is about to end, the other deck loads a related video and the crossfader slides over by itself</li>
+          <li>Picks come from videos related to the one you started with and the last few played, and never repeat</li>
+          <li><strong>Skip ⏭</strong> (or <code>N</code>) fades to the next video right away</li>
+          <li>Keep the tab open (it can stay in the background)</li>
+        </ul>
+      </div>
+
+      <div class="instructions-section">
         <h3>🎛️ Deck Controls</h3>
         <ul>
           <li><strong>Volume:</strong> Sets each video's level before the crossfader, so you can match loud and quiet tracks</li>
@@ -247,6 +258,17 @@
 
     <!-- Audio Fader Controls -->
     <div class="controls" aria-label="Audio Mixer Controls">
+      <!-- Auto Mix: keeps playing related videos, crossfading between the decks -->
+      <div class="auto-mix" role="group" aria-label="Auto Mix">
+        <div class="auto-mix-buttons">
+          <button id="autoMixToggle" class="auto-mix-toggle" onclick="toggleAutoMix()" aria-pressed="false">Auto Mix: Off</button>
+          <button id="autoMixSkip" onclick="skipAutoMix()" disabled aria-label="Skip to the next related video">Skip ⏭</button>
+        </div>
+        <p id="autoMixStatus" class="auto-mix-status" aria-live="polite">
+          Background mode: keeps playing related videos and crossfades between the decks. Load a video, then switch it on.
+        </p>
+      </div>
+
       <!-- Fader (Range Input) -->
       <input
         type="range"

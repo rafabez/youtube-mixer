@@ -132,3 +132,93 @@ function cache_file($key) {
 function is_video_id($id) {
     return is_string($id) && preg_match('/^[A-Za-z0-9_-]{11}$/', $id) === 1;
 }
+
+// ============================================
+// Invidious helpers (used by invidious-search.php and related.php)
+// ============================================
+
+/**
+ * Instances to try, in order: configured instance, configured fallbacks, then
+ * HTTPS instances with the API enabled from the public directory (cached 6 hours).
+ */
+function invidious_instances() {
+    $list = array_merge([INVIDIOUS_INSTANCE], INVIDIOUS_FALLBACK_INSTANCES);
+
+    $directory = cache_get('invidious:directory', 6 * 3600);
+    if ($directory === null) {
+        $directory = [];
+        list($httpCode, $response) = http_get(INVIDIOUS_DIRECTORY_URL, 6);
+        $data = ($httpCode === 200 && $response !== false) ? json_decode($response, true) : null;
+        foreach (is_array($data) ? $data : [] as $entry) {
+            $info = $entry[1] ?? [];
+            if (($info['type'] ?? '') === 'https' && !empty($info['api']) && !empty($info['uri'])) {
+                $directory[] = $info['uri'];
+            }
+        }
+        if ($directory) {
+            cache_set('invidious:directory', $directory);
+        }
+    }
+
+    $list = array_map(function ($uri) {
+        return rtrim($uri, '/');
+    }, array_merge($list, $directory));
+
+    return array_values(array_unique(array_filter($list)));
+}
+
+/**
+ * GET an Invidious API path, trying instances in order until one returns JSON
+ * accepted by $isValid. Returns [data or null, instance used, instances tried].
+ * Instances with the API disabled often answer 200 with an HTML page, hence the check.
+ */
+function invidious_get($path, array $params, callable $isValid) {
+    $instances = array_slice(invidious_instances(), 0, INVIDIOUS_MAX_ATTEMPTS);
+    $query = $params ? '?' . http_build_query($params) : '';
+
+    foreach ($instances as $instance) {
+        list($httpCode, $response) = http_get($instance . $path . $query, 6);
+        $data = ($httpCode === 200 && $response !== false) ? json_decode($response, true) : null;
+        if (is_array($data) && $isValid($data)) {
+            return [$data, $instance, $instances];
+        }
+    }
+    return [null, null, $instances];
+}
+
+/**
+ * Converts an Invidious video (search result or recommendation) to the
+ * YouTube API item shape the frontend expects.
+ * Thumbnails come straight from YouTube's image CDN: instance thumbnail URLs are
+ * sometimes relative or point to sizes that don't exist.
+ */
+function invidious_video_item(array $video) {
+    $id = $video['videoId'];
+    $thumb = function ($name, $w, $h) use ($id) {
+        return ['url' => "https://i.ytimg.com/vi/$id/$name.jpg", 'width' => $w, 'height' => $h];
+    };
+
+    return [
+        'videoId' => $id,
+        'id' => ['videoId' => $id],
+        'snippet' => [
+            'title' => $video['title'] ?? '',
+            'description' => $video['description'] ?? '',
+            'channelTitle' => $video['author'] ?? '',
+            'channelId' => $video['authorId'] ?? '',
+            // Search results give a Unix timestamp, recommendations an ISO date string
+            'publishedAt' => is_int($video['published'] ?? null) ? date('c', $video['published']) : (string) ($video['published'] ?? ''),
+            'thumbnails' => [
+                'default' => $thumb('default', 120, 90),
+                'medium' => $thumb('mqdefault', 320, 180),
+                'high' => $thumb('hqdefault', 480, 360)
+            ]
+        ],
+        // Additional Invidious-specific data
+        'invidious' => [
+            'viewCount' => $video['viewCount'] ?? 0,
+            'lengthSeconds' => $video['lengthSeconds'] ?? 0,
+            'liveNow' => $video['liveNow'] ?? false
+        ]
+    ];
+}
