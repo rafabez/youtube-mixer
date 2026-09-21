@@ -62,7 +62,7 @@
             </ul>
           </li>
           <li>
-            <strong>Manual URL Entry:</strong> Alternatively, paste a YouTube video URL (e.g., <code>https://www.youtube.com/watch?v=...</code>) into the input field for Video 1 or Video 2, then click "Load".
+            <strong>Manual URL Entry:</strong> Alternatively, paste a YouTube video URL (e.g., <code>https://www.youtube.com/watch?v=...</code>, <code>youtu.be/...</code> or a Shorts link) into the input field for Video 1 or Video 2, then click "Load" (or press <code>Enter</code>).
           </li>
         </ol>
       </div>
@@ -75,11 +75,24 @@
           <div><code>Q</code> = Play</div>
           <div><code>W</code> = Pause</div>
           <div><code>E</code> = Stop</div>
+          <div><code>R</code> = Go to Cue</div>
+          <div><code>Shift</code>+<code>R</code> = Set Cue</div>
           <div><strong>Video 2 (Deck B):</strong></div>
           <div><code>A</code> = Play</div>
           <div><code>S</code> = Pause</div>
           <div><code>D</code> = Stop</div>
+          <div><code>F</code> = Go to Cue</div>
+          <div><code>Shift</code>+<code>F</code> = Set Cue</div>
         </div>
+      </div>
+
+      <div class="instructions-section">
+        <h3>🎛️ Deck Controls</h3>
+        <ul>
+          <li><strong>Volume:</strong> Sets each video's level before the crossfader, so you can match loud and quiet tracks</li>
+          <li><strong>Speed:</strong> Changes playback speed (0.5× to 2×) to line up tempos</li>
+          <li><strong>Set Cue / Go to Cue:</strong> Mark a moment in the video and jump back to it at any time</li>
+        </ul>
       </div>
 
       <div class="instructions-section">
@@ -104,6 +117,7 @@
           <li>Use keyboard shortcuts for hands-free DJ-style mixing</li>
           <li>The crossfader uses constant power panning for smooth transitions</li>
           <li>You can load videos while others are playing</li>
+          <li>Your decks, volumes, speeds, cue points and fader position are remembered for your next visit</li>
         </ul>
       </div>
 
@@ -148,6 +162,33 @@
           <button onclick="pauseVideo(1)" aria-label="Pause Video 1">Pause</button>
           <button onclick="stopVideo(1)" aria-label="Stop Video 1">Stop</button>
         </div>
+        <!-- Deck Controls for Video 1: volume trim, speed and cue point -->
+        <div class="deck-extras">
+          <label class="deck-control">
+            <span>Volume <output id="trimValue1">100%</output></span>
+            <input type="range" id="trim1" min="0" max="100" value="100" oninput="setTrim(1, this.value)" aria-label="Volume for Video 1"/>
+          </label>
+          <label class="deck-control">
+            <span>Speed</span>
+            <select id="speed1" onchange="setSpeed(1, this.value)" aria-label="Playback speed for Video 1">
+              <option value="0.5">0.5×</option>
+              <option value="0.75">0.75×</option>
+              <option value="0.9">0.9×</option>
+              <option value="1" selected>1×</option>
+              <option value="1.1">1.1×</option>
+              <option value="1.25">1.25×</option>
+              <option value="1.5">1.5×</option>
+              <option value="2">2×</option>
+            </select>
+          </label>
+          <div class="deck-control cue-control">
+            <span>Cue <output id="cueTime1">--:--</output></span>
+            <div class="cue-buttons">
+              <button onclick="setCue(1)" aria-label="Set cue point for Video 1 at the current position">Set Cue</button>
+              <button onclick="jumpToCue(1)" aria-label="Jump to cue point for Video 1">Go to Cue</button>
+            </div>
+          </div>
+        </div>
       </fieldset>
 
       <!-- Fieldset for Video 2 Controls -->
@@ -170,6 +211,33 @@
           <button onclick="playVideo(2)" aria-label="Play Video 2">Play</button>
           <button onclick="pauseVideo(2)" aria-label="Pause Video 2">Pause</button>
           <button onclick="stopVideo(2)" aria-label="Stop Video 2">Stop</button>
+        </div>
+        <!-- Deck Controls for Video 2: volume trim, speed and cue point -->
+        <div class="deck-extras">
+          <label class="deck-control">
+            <span>Volume <output id="trimValue2">100%</output></span>
+            <input type="range" id="trim2" min="0" max="100" value="100" oninput="setTrim(2, this.value)" aria-label="Volume for Video 2"/>
+          </label>
+          <label class="deck-control">
+            <span>Speed</span>
+            <select id="speed2" onchange="setSpeed(2, this.value)" aria-label="Playback speed for Video 2">
+              <option value="0.5">0.5×</option>
+              <option value="0.75">0.75×</option>
+              <option value="0.9">0.9×</option>
+              <option value="1" selected>1×</option>
+              <option value="1.1">1.1×</option>
+              <option value="1.25">1.25×</option>
+              <option value="1.5">1.5×</option>
+              <option value="2">2×</option>
+            </select>
+          </label>
+          <div class="deck-control cue-control">
+            <span>Cue <output id="cueTime2">--:--</output></span>
+            <div class="cue-buttons">
+              <button onclick="setCue(2)" aria-label="Set cue point for Video 2 at the current position">Set Cue</button>
+              <button onclick="jumpToCue(2)" aria-label="Jump to cue point for Video 2">Go to Cue</button>
+            </div>
+          </div>
         </div>
       </fieldset>
     </div>

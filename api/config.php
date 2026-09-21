@@ -1,100 +1,82 @@
 <?php
 /**
- * YouTube Mixer - Secure Configuration with Environment Variables
- * 
- * This configuration uses environment variables to store sensitive data
- * like API keys, making it safer for version control and deployment.
- * 
+ * YouTube Mixer - Configuration
+ *
+ * Settings come from server environment variables or from api/.env
+ * (see api/.env.example). Nothing secret lives in this file.
+ *
  * @license MIT
  * @source https://github.com/rafabez/youtube-mixer
  */
 
 // ============================================
-// MÉTODO 1: Usar variáveis de ambiente do servidor
+// Carrega api/.env (se existir) para o ambiente
 // ============================================
-// Se você configurou variáveis de ambiente no painel do Hostinger
-// ou via .htaccess, elas serão lidas automaticamente
-
-// Tenta ler a API key de variáveis de ambiente
-$youtubeApiKey = getenv('YOUTUBE_API_KEY') ?: $_ENV['YOUTUBE_API_KEY'] ?? null;
-
-// ============================================
-// MÉTODO 2: Usar arquivo .env (recomendado)
-// ============================================
-// Se o arquivo .env existe, carrega as variáveis dele
+// Variáveis já definidas no servidor (painel ou SetEnv no .htaccess) têm prioridade.
 if (file_exists(__DIR__ . '/.env')) {
     $envFile = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($envFile as $line) {
-        // Ignora comentários e linhas vazias
-        if (strpos(trim($line), '#') === 0 || empty(trim($line))) {
+        $line = trim($line);
+        // Ignora comentários e linhas sem '='
+        if ($line === '' || $line[0] === '#' || strpos($line, '=') === false) {
             continue;
         }
-        
-        // Parse a linha KEY=VALUE
+
         list($key, $value) = explode('=', $line, 2);
         $key = trim($key);
-        $value = trim($value);
-        
         // Remove aspas se existirem
-        $value = trim($value, '"\'');
-        
-        // Define a variável de ambiente
-        putenv("$key=$value");
-        $_ENV[$key] = $value;
-        $_SERVER[$key] = $value;
-    }
-    
-    // Recarrega a API key após ler o .env
-    $youtubeApiKey = getenv('YOUTUBE_API_KEY') ?: $_ENV['YOUTUBE_API_KEY'] ?? null;
-}
+        $value = trim(trim($value), '"\'');
 
-// ============================================
-// MÉTODO 3: Fallback para config.php (se existir)
-// ============================================
-// Se nenhuma variável de ambiente foi encontrada, tenta carregar do config.php antigo
-if (empty($youtubeApiKey) && file_exists(__DIR__ . '/config.php')) {
-    require_once __DIR__ . '/config.php';
-    if (defined('YOUTUBE_API_KEY')) {
-        $youtubeApiKey = YOUTUBE_API_KEY;
+        if (getenv($key) === false) {
+            putenv("$key=$value");
+            $_ENV[$key] = $value;
+        }
     }
 }
 
-// ============================================
-// Validação: API key deve existir
-// ============================================
-if (empty($youtubeApiKey)) {
-    // Se nenhuma API key foi encontrada, retorna erro útil
-    if (php_sapi_name() !== 'cli') {
-        header('Content-Type: application/json');
-        http_response_code(500);
-        echo json_encode([
-            'error' => 'API key not configured',
-            'message' => 'Please configure YOUTUBE_API_KEY environment variable or create .env file',
-            'instructions' => 'See ENVIRONMENT_SETUP.md for configuration instructions'
-        ]);
-        exit;
-    } else {
-        die("ERROR: YOUTUBE_API_KEY not configured. See ENVIRONMENT_SETUP.md\n");
-    }
+/**
+ * Reads a setting from the environment, falling back to a default.
+ */
+function env_value($key, $default = '') {
+    $value = getenv($key);
+    return ($value === false || $value === '') ? $default : $value;
 }
 
-// Define constantes para uso no resto da aplicação
-define('YOUTUBE_API_KEY', $youtubeApiKey);
+// ============================================
+// YouTube Data API
+// ============================================
+// Pode ficar vazio: youtube-search.php responde com erro e o frontend usa o Invidious.
+define('YOUTUBE_API_KEY', env_value('YOUTUBE_API_KEY'));
+define('MAX_RESULTS', max(1, min(50, (int) env_value('MAX_RESULTS', 20))));
+define('APP_ENV', env_value('APP_ENV', 'production'));
 
-// Outras configurações (com valores padrão se não definidos)
-define('INVIDIOUS_INSTANCE', getenv('INVIDIOUS_INSTANCE') ?: $_ENV['INVIDIOUS_INSTANCE'] ?? 'https://inv.nadeko.net');
-define('MAX_RESULTS', getenv('MAX_RESULTS') ?: $_ENV['MAX_RESULTS'] ?? 20);
-define('APP_ENV', getenv('APP_ENV') ?: $_ENV['APP_ENV'] ?? 'production');
+// ============================================
+// Invidious (alternativa sem chave de API)
+// ============================================
+// Instância preferida; se falhar, tenta INVIDIOUS_FALLBACK_INSTANCES e depois
+// as instâncias com API ativa listadas em api.invidious.io.
+define('INVIDIOUS_INSTANCE', env_value('INVIDIOUS_INSTANCE', 'https://invidious.f5.si'));
+define('INVIDIOUS_FALLBACK_INSTANCES', array_values(array_filter(array_map('trim',
+    explode(',', env_value('INVIDIOUS_FALLBACK_INSTANCES', ''))
+))));
+define('INVIDIOUS_DIRECTORY_URL', 'https://api.invidious.io/instances.json?sort_by=health');
+// Máximo de instâncias tentadas por busca (cada uma pode levar até o timeout)
+define('INVIDIOUS_MAX_ATTEMPTS', 4);
 
-// Invidious fallback instances
-define('INVIDIOUS_FALLBACK_INSTANCES', [
-    'https://invidious.fdn.fr',
-    'https://invidious.privacydev.net',
-    'https://iv.nboeck.de',
-    'https://invidious.lunar.icu'
-]);
+// Search filters (see https://docs.invidious.io/api/#get-apiv1search)
+define('SEARCH_TYPE', 'video');
+define('SEARCH_SORT', env_value('SEARCH_SORT', 'relevance'));   // relevance, rating, upload_date, view_count
+define('SEARCH_DURATION', env_value('SEARCH_DURATION', ''));    // short, medium, long
+define('SEARCH_FEATURES', env_value('SEARCH_FEATURES', ''));    // e.g. hd,subtitles
 
-// Allowed origins for CORS
+// ============================================
+// Cache e CORS
+// ============================================
+// Search results are cached to save YouTube quota (each search costs 100 of 10,000 daily units).
+define('CACHE_DURATION', (int) env_value('CACHE_DURATION', 3600));
+define('CACHE_DIR', env_value('CACHE_DIR', sys_get_temp_dir() . '/youtubemixer-cache'));
+
+// Allowed origins for CORS (same-origin requests don't need to be listed)
 define('ALLOWED_ORIGINS', [
     'https://youtubemixer.online',
     'https://www.youtubemixer.online',
@@ -102,17 +84,3 @@ define('ALLOWED_ORIGINS', [
     'http://localhost',  // Para testes locais
     'http://127.0.0.1'   // Para testes locais
 ]);
-
-// Cache duration (1 hour)
-define('CACHE_DURATION', 3600);
-
-// ============================================
-// Logging (apenas em desenvolvimento)
-// ============================================
-if (APP_ENV === 'development') {
-    error_log('YouTube Mixer Config Loaded:');
-    error_log('- API Key: ' . (empty($youtubeApiKey) ? 'NOT SET' : 'SET (hidden)'));
-    error_log('- Invidious: ' . INVIDIOUS_INSTANCE);
-    error_log('- Max Results: ' . MAX_RESULTS);
-    error_log('- Environment: ' . APP_ENV);
-}

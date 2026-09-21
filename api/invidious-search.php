@@ -1,164 +1,93 @@
 <?php
 /**
  * Invidious Search API Endpoint (Free Software Alternative)
- * 
- * This endpoint uses Invidious API instead of YouTube Data API
- * for privacy-respecting search without Google tracking.
- * 
+ *
+ * Searches through public Invidious instances instead of the YouTube Data API:
+ * no API key, no quota, no Google tracking. The frontend uses it as a fallback
+ * when YouTube search fails. Public instances come and go, so after the
+ * configured ones it tries instances with the API enabled from api.invidious.io.
+ *
+ * Output uses the same shape as youtube-search.php.
+ *
  * @license MIT
  * @source https://github.com/rafabez/youtube-mixer
  */
 
-// Include configuration
-require_once 'config.php';
+require_once __DIR__ . '/common.php';
 
-// Set headers for CORS and JSON response
-header('Content-Type: application/json');
+start_json_endpoint();
+$query = get_search_query();
 
-// Handle CORS
-$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-if (in_array($origin, ALLOWED_ORIGINS)) {
-    header('Access-Control-Allow-Origin: ' . $origin);
-    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type');
+$cacheKey = 'invidious:' . MAX_RESULTS . ':' . strtolower($query);
+$cached = cache_get($cacheKey);
+if ($cached !== null) {
+    header('X-Cache: HIT');
+    json_ok($cached);
 }
 
-// Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-// Only allow GET and POST requests
-if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit();
-}
-
-// Get search query
-$query = '';
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $query = isset($_GET['q']) ? trim($_GET['q']) : '';
-} else {
-    $input = json_decode(file_get_contents('php://input'), true);
-    $query = isset($input['q']) ? trim($input['q']) : '';
-}
-
-// Validate query
-if (empty($query)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Search query is required']);
-    exit();
-}
-
-// Sanitize query
-$query = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
-
-// Build Invidious API URL
 $params = [
     'q' => $query,
     'type' => SEARCH_TYPE,
 ];
-
-// Add optional parameters
-if (!empty(SEARCH_SORT)) {
+if (SEARCH_SORT !== '') {
     $params['sort'] = SEARCH_SORT;
 }
-if (!empty(SEARCH_DURATION)) {
+if (SEARCH_DURATION !== '') {
     $params['duration'] = SEARCH_DURATION;
 }
-if (!empty(SEARCH_FEATURES)) {
+if (SEARCH_FEATURES !== '') {
     $params['features'] = SEARCH_FEATURES;
 }
 
-// Try primary instance first
-$instances = array_merge([INVIDIOUS_INSTANCE], INVIDIOUS_FALLBACK_INSTANCES);
-$response = false;
-$lastError = '';
+$instances = array_slice(invidious_instances(), 0, INVIDIOUS_MAX_ATTEMPTS);
+$videos = null;
+$usedInstance = null;
 
 foreach ($instances as $instance) {
-    $apiUrl = rtrim($instance, '/') . '/api/v1/search?' . http_build_query($params);
-    
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $apiUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $lastError = curl_error($ch);
-    curl_close($ch);
-    
-    // If successful, break the loop
-    if ($response !== false && $httpCode === 200) {
+    list($httpCode, $response) = http_get($instance . '/api/v1/search?' . http_build_query($params), 6);
+    $data = ($httpCode === 200 && $response !== false) ? json_decode($response, true) : null;
+
+    // Instances with the API disabled often answer 200 with an HTML page, so check the shape
+    if (is_array($data) && array_is_list($data)) {
+        $videos = $data;
+        $usedInstance = $instance;
         break;
     }
-    
-    // Otherwise, try next instance
-    $response = false;
 }
 
-// Handle errors if all instances failed
-if ($response === false) {
-    http_response_code(500);
-    echo json_encode([
-        'error' => 'Failed to connect to Invidious instances',
-        'details' => $lastError,
-        'message' => 'All Invidious instances are unavailable. Please try again later.'
+if ($videos === null) {
+    json_error(502, 'All Invidious instances are unavailable', [
+        'message' => 'Please try again later.',
+        'tried' => $instances
     ]);
-    exit();
 }
 
-// Parse response
-$data = json_decode($response, true);
+// Keep only videos and transform to match the YouTube API format
+$items = [];
+foreach ($videos as $video) {
+    if (($video['type'] ?? '') !== 'video' || !is_video_id($video['videoId'] ?? null)) {
+        continue;
+    }
+    $id = $video['videoId'];
+    // Thumbnails come straight from YouTube's image CDN: instance thumbnail URLs are
+    // sometimes relative or point to sizes that don't exist.
+    $thumb = function ($name, $w, $h) use ($id) {
+        return ['url' => "https://i.ytimg.com/vi/$id/$name.jpg", 'width' => $w, 'height' => $h];
+    };
 
-if (!is_array($data)) {
-    http_response_code(500);
-    echo json_encode([
-        'error' => 'Invalid response from Invidious',
-        'details' => 'Response is not valid JSON'
-    ]);
-    exit();
-}
-
-// Filter only videos and transform to match YouTube API format
-$videos = array_filter($data, function($item) {
-    return isset($item['type']) && $item['type'] === 'video';
-});
-
-// Limit results
-$videos = array_slice($videos, 0, MAX_RESULTS);
-
-// Transform Invidious format to match YouTube API format for compatibility
-$transformedItems = array_map(function($video) {
-    return [
-        'videoId' => $video['videoId'],
-        'id' => ['videoId' => $video['videoId']],
+    $items[] = [
+        'videoId' => $id,
+        'id' => ['videoId' => $id],
         'snippet' => [
-            'title' => $video['title'],
+            'title' => $video['title'] ?? '',
             'description' => $video['description'] ?? '',
-            'channelTitle' => $video['author'],
+            'channelTitle' => $video['author'] ?? '',
             'channelId' => $video['authorId'] ?? '',
             'publishedAt' => isset($video['published']) ? date('c', $video['published']) : '',
             'thumbnails' => [
-                'default' => [
-                    'url' => $video['videoThumbnails'][0]['url'] ?? '',
-                    'width' => 120,
-                    'height' => 90
-                ],
-                'medium' => [
-                    'url' => $video['videoThumbnails'][1]['url'] ?? $video['videoThumbnails'][0]['url'] ?? '',
-                    'width' => 320,
-                    'height' => 180
-                ],
-                'high' => [
-                    'url' => $video['videoThumbnails'][2]['url'] ?? $video['videoThumbnails'][0]['url'] ?? '',
-                    'width' => 480,
-                    'height' => 360
-                ]
+                'default' => $thumb('default', 120, 90),
+                'medium' => $thumb('mqdefault', 320, 180),
+                'high' => $thumb('hqdefault', 480, 360)
             ]
         ],
         // Additional Invidious-specific data
@@ -168,17 +97,49 @@ $transformedItems = array_map(function($video) {
             'liveNow' => $video['liveNow'] ?? false
         ]
     ];
-}, $videos);
 
-// Return response in YouTube API compatible format
-http_response_code(200);
-echo json_encode([
+    if (count($items) >= MAX_RESULTS) {
+        break;
+    }
+}
+
+$result = [
     'kind' => 'youtube#searchListResponse',
-    'items' => array_values($transformedItems),
-    'pageInfo' => [
-        'totalResults' => count($transformedItems),
-        'resultsPerPage' => MAX_RESULTS
-    ],
+    'items' => $items,
     'source' => 'invidious',
-    'instance' => INVIDIOUS_INSTANCE
-]);
+    'instance' => $usedInstance
+];
+
+cache_set($cacheKey, $result);
+header('X-Cache: MISS');
+json_ok($result);
+
+/**
+ * Instances to try, in order: configured instance, configured fallbacks, then
+ * HTTPS instances with the API enabled from the public directory (cached 6 hours).
+ */
+function invidious_instances() {
+    $list = array_merge([INVIDIOUS_INSTANCE], INVIDIOUS_FALLBACK_INSTANCES);
+
+    $directory = cache_get('invidious:directory', 6 * 3600);
+    if ($directory === null) {
+        $directory = [];
+        list($httpCode, $response) = http_get(INVIDIOUS_DIRECTORY_URL, 6);
+        $data = ($httpCode === 200 && $response !== false) ? json_decode($response, true) : null;
+        foreach (is_array($data) ? $data : [] as $entry) {
+            $info = $entry[1] ?? [];
+            if (($info['type'] ?? '') === 'https' && !empty($info['api']) && !empty($info['uri'])) {
+                $directory[] = $info['uri'];
+            }
+        }
+        if ($directory) {
+            cache_set('invidious:directory', $directory);
+        }
+    }
+
+    $list = array_map(function ($uri) {
+        return rtrim($uri, '/');
+    }, array_merge($list, $directory));
+
+    return array_values(array_unique(array_filter($list)));
+}

@@ -556,6 +556,59 @@ body {
       margin-top: 0; /* Override general button margin */
   }
   
+  /* Deck Controls (volume trim, speed, cue) within Fieldsets */
+  fieldset .deck-extras {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 15px 25px;
+      width: 100%;
+      max-width: 640px;
+      padding-top: 15px;
+      border-top: 1px solid #444;
+  }
+
+  .deck-control {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.9em;
+      color: #ccc;
+  }
+
+  .deck-control output {
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+      margin-left: 4px;
+  }
+
+  .deck-control input[type="range"] {
+      width: 140px;
+      accent-color: rgb(200, 20, 0);
+      cursor: pointer;
+  }
+
+  .deck-control select {
+      padding: 8px 10px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background-color: #222;
+      color: white;
+      cursor: pointer;
+  }
+
+  .cue-buttons {
+      display: flex;
+      gap: 8px;
+  }
+
+  /* :not() chain matches the global button rule's specificity so these sizes win */
+  .deck-extras .cue-buttons button:not(.info-icon):not(.modal-close) {
+      padding: 8px 12px;
+      font-size: 14px;
+  }
+
   /* YouTube Player Containers */
   #player1, #player2 {
     width: 100%;
