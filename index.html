@@ -258,17 +258,6 @@
 
     <!-- Audio Fader Controls -->
     <div class="controls" aria-label="Audio Mixer Controls">
-      <!-- Auto Mix: keeps playing related videos, crossfading between the decks -->
-      <div class="auto-mix" role="group" aria-label="Auto Mix">
-        <div class="auto-mix-buttons">
-          <button id="autoMixToggle" class="auto-mix-toggle" onclick="toggleAutoMix()" aria-pressed="false">Auto Mix: Off</button>
-          <button id="autoMixSkip" onclick="skipAutoMix()" disabled aria-label="Skip to the next related video">Skip ⏭</button>
-        </div>
-        <p id="autoMixStatus" class="auto-mix-status" aria-live="polite">
-          Background mode: keeps playing related videos and crossfades between the decks. Load a video, then switch it on.
-        </p>
-      </div>
-
       <!-- Fader (Range Input) -->
       <input
         type="range"
@@ -286,6 +275,17 @@
         Use this fader to control the relative volume of Video 1 and Video 2.
         Sliding to the left emphasizes Video 1, while sliding to the right emphasizes Video 2.
       </p>
+
+      <!-- Auto Mix: keeps playing related videos, crossfading between the decks -->
+      <div class="auto-mix" role="group" aria-label="Auto Mix">
+        <div class="auto-mix-buttons">
+          <button id="autoMixToggle" class="auto-mix-toggle" onclick="toggleAutoMix()" aria-pressed="false">Auto Mix: Off</button>
+          <button id="autoMixSkip" onclick="skipAutoMix()" disabled aria-label="Skip to the next related video">Skip ⏭</button>
+        </div>
+        <p id="autoMixStatus" class="auto-mix-status" aria-live="polite">
+          Background mode: keeps playing related videos and crossfades between the decks. Load a video, then switch it on.
+        </p>
+      </div>
     </div>
   </main>
 
