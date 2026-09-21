@@ -48,28 +48,40 @@ body {
     text-align: right;
   }
 
-  /* Info Icon Button Styles */
+  /* Info Button Styles: labelled pill so the instructions are easy to find */
   .info-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto; /* Push to the right edge of the header */
     background-color: #555;
     color: white;
-    border: none;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    font-size: 16px;
+    border: 1px solid #777;
+    border-radius: 999px;
+    padding: 5px 14px 5px 5px;
+    font-size: 14px;
     font-weight: bold;
-    line-height: 28px; /* Center the '?' vertically */
-    text-align: center;
     cursor: pointer;
-    padding: 0; /* Remove default button padding */
-    /* margin-left: 15px; */ /* Removed, using header gap */
-    transition: background-color 0.3s ease;
-    flex-shrink: 0; /* Prevent icon from shrinking */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    flex-shrink: 0; /* Prevent button from shrinking */
   }
-  .info-icon:hover {
+  .info-icon:hover,
+  .info-icon:focus-visible {
     background-color: #777;
+    border-color: #999;
   }
-  
+  .info-icon-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: rgb(200, 20, 0);
+    font-size: 14px;
+    line-height: 1;
+  }
+
   /* Modal Styles */
   .modal {
     position: fixed; /* Stay in place */
@@ -809,5 +821,41 @@ body {
     /* Further adjust input widths for very small screens */
     .search-container input, fieldset input[type="text"] {
       width: 100%;
+    }
+  }
+
+  /* Header on narrow screens: title and help button on the first row, search below.
+     Placed last so it overrides the general mobile rules above (full-width buttons, big title). */
+  @media only screen and (max-width: 768px) {
+    body {
+      padding-top: 105px; /* Taller two-row fixed header */
+    }
+    header {
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 16px;
+    }
+    header h1 {
+      font-size: 1.2em;
+      width: auto;
+      flex: 1;
+      text-align: left;
+    }
+    .info-icon {
+      width: auto;
+      margin-left: 0;
+    }
+    .header-search {
+      order: 3; /* Move below the title row */
+      flex-basis: 100%;
+      flex-direction: row;
+      min-width: 0;
+    }
+    .header-search input {
+      max-width: none;
+      margin: 0;
+    }
+    .header-search button {
+      width: auto;
     }
   }
